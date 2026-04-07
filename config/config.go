@@ -4,7 +4,8 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"github.com/joho/gogetenv"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -40,7 +41,7 @@ func LoadConfig() *Config {
 	condidates := []string{".env","../.env","../../.env","../../../.env"}
 
 	for _, v := range condidates{
-		if err := gogetenv.Load(v); err != nil {
+		if err := godotenv.Load(v); err != nil {
 			loadedFrom = v
 			break
 		}

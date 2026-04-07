@@ -1,0 +1,4 @@
+migrations/
+Dockerfile
+.gitignore
+README.md
