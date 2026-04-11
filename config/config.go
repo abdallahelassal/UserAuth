@@ -16,12 +16,13 @@ type Config struct {
 }
 
 type DatabaseConfig struct {
-	Name     string
-	User     string
-	Password string
-	Port     string
-	Host     string
-	SSLMode  string
+	Name     	string
+	User     	string
+	Password 	string
+	Port     	string
+	Host     	string
+	DatabaseURL string
+	SSLMode  	string
 }
 
 type ServerConfig struct {
@@ -65,6 +66,7 @@ func LoadConfig() *Config {
 			Port: getEnv("DB_PORT","5432"),
 			SSLMode: getEnv("DB_SSL_MODE","disable"),
 			Host: getEnv("DB_HOST","localhost"),
+			DatabaseURL: getEnv("DATABASE_URL", ""),
 		},
 		JWTConfig: JWTConfig{
 			Secret: getEnv("SECRET_KEY",""),

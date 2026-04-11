@@ -7,12 +7,13 @@ import (
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"go.uber.org/zap"
 )
 
-func RunMigrations(databseURL, migrationPath string) error {
+func RunMigrations(databaseURL, migrationPath string, logger *zap.Logger) error {
 	m , err := migrate.New(
 		fmt.Sprintf("file://%s",migrationPath),
-		databseURL,
+		databaseURL,
 	)
 	if err != nil {
         return fmt.Errorf("failed to create migrate instance: %w", err)
@@ -28,13 +29,14 @@ func RunMigrations(databseURL, migrationPath string) error {
 	}
 	
 	if dirty {
-		log.Warn("Database is dirty",
+			logger.Warn("Database is dirty",
 			zap.Uint("version", version),
 		)
 	} else {
-		log.Info("Database migrated successfully",
+			logger.Info("Database migrated successfully",
 			zap.Uint("version", version),
 		)
 	}
+	
 	return nil
 }
