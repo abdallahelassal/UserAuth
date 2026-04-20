@@ -3,7 +3,7 @@ package postgres
 import (
 	"context"
 
-	"github.com/abdallahelassal/UserAuth.git/domain"
+	"github.com/abdallahelassal/UserAuth/domain"
 )
 
 type UserRepository interface {

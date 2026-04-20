@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/abdallahelassal/UserAuth.git/config"
+	"github.com/abdallahelassal/UserAuth/config"
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

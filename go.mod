@@ -1,4 +1,4 @@
-module github.com/abdallahelassal/UserAuth.git
+module github.com/abdallahelassal/UserAuth
 
 go 1.25.0
 

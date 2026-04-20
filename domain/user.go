@@ -10,19 +10,20 @@ import (
 
 
 type Base struct {
-	UUID		string		`json:"uuid"`
-	CreatedAT	time.Time	`json:"created_at"`
+	UUID		uuid.UUID		`json:"uuid"`
+	CreatedAt	time.Time	`json:"created_at"`
 	UpdatedAt	time.Time	`json:"updated_at"`
 }
 
 type User struct {
 	Base
-	Name     string 	`json:"name"`
-	Email    string 	`json:"email"`
-	Password string 	`json:"password"`
+	UserName     string 	`json:"user_name"`
+	Email    	string 		`json:"email"`
+	Password 	string 		`json:"password"`
+	IsActive 	bool			`json:"is_active"`
 }
 
 func (b *Base) BeforeCreate(tx *gorm.DB)(err error){
-	b.UUID = uuid.New().String()
+	b.UUID = uuid.Must(uuid.NewV6())
 	return
 }

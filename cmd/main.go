@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"github.com/abdallahelassal/UserAuth.git/config"
-	"github.com/abdallahelassal/UserAuth.git/internal/database"
-	"github.com/abdallahelassal/UserAuth.git/pkg/logger"
+	"github.com/abdallahelassal/UserAuth/config"
+	"github.com/abdallahelassal/UserAuth/internal/database"
+	"github.com/abdallahelassal/UserAuth/pkg/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,9 +19,9 @@ func main() {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
 	if err := database.RunMigrations(cfg.DatabaseConfig.DatabaseURL,"./migration",applogger); err != nil{
-		if err := conn.Connect(); err != nil {
+		
 		log.Fatalf("Failed to connect to database: %v", err)
-	}
+	
 	}
 
 	r := gin.Default()

@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/abdallahelassal/UserAuth.git/domain"
-	"github.com/abdallahelassal/UserAuth.git/internal/modules/user/repository"
+	"github.com/abdallahelassal/UserAuth/domain"
+	"github.com/abdallahelassal/UserAuth/internal/modules/user/repository"
 	"gorm.io/gorm"
 )
 
@@ -63,7 +63,7 @@ func (r *postgresUserRepository) Fetch(ctx context.Context, cursor string, limit
 	
 	if len(users) > limit {
 		last := users[limit-1]
-		nextCursor = repository.EncodeCursor(last.CreatedAT)
+		nextCursor = repository.EncodeCursor(last.CreatedAt)
 		users = users[:limit]
 	}
 	return users , nextCursor , nil
