@@ -1,11 +1,11 @@
-package postgres
+package repository
 
 import (
 	"context"
 	"time"
 
 	"github.com/abdallahelassal/UserAuth/domain"
-	"github.com/abdallahelassal/UserAuth/internal/modules/user/repository"
+	
 	"gorm.io/gorm"
 )
 
@@ -19,16 +19,33 @@ func NewUserRepository(db *gorm.DB)*postgresUserRepository{
 }
 
 func (r *postgresUserRepository) Create(ctx context.Context, user *domain.User)error{
-	return r.db.WithContext(ctx).Create(user).Error 
+	model := FromDomain(user)
+	
+	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
+		return err
+	}
+	user.UUID = model.UUID
+	return nil 
+	
 }
 
-func (r *postgresUserRepository) fetch(ctx context.Context,query *gorm.DB ,limit int) ([]domain.User,error){
-	var users []domain.User
-	err := r.db.WithContext(ctx).
+
+func (r *postgresUserRepository) fetchUser(ctx context.Context,query *gorm.DB ,limit int) ([]domain.User,error){
+	var models []UserModel
+	err := query.WithContext(ctx).
 			Limit(limit + 1).
-			Find(&users).Error
-	return users , err			
+			Find(&models).Error
+	if err != nil {
+		return nil, err
+	}
+
+	users := make([]domain.User,len(models))
+	for i, model := range models {
+		users[i] = *model.ToDomain()
+	}
+	return users, nil
 }
+
 
 func (r *postgresUserRepository) Fetch(ctx context.Context, cursor string, limit int)([]domain.User,string,error){
 	var users 		[]domain.User
@@ -37,7 +54,7 @@ func (r *postgresUserRepository) Fetch(ctx context.Context, cursor string, limit
 
 	// decode cursor 
 	if cursor != ""{
-		cursorTime , err = repository.DecodeCursor(cursor)
+		cursorTime , err = DecodeCursor(cursor)
 		if err != nil {
 			return nil , "", domain.ErrBadParamInput
 		}
@@ -47,12 +64,12 @@ func (r *postgresUserRepository) Fetch(ctx context.Context, cursor string, limit
 	query := r.db.Order("created_at DESC")
 
 	if cursor != ""{
-		query = r.db.Where("created_at < ?", cursorTime)
+		query = query.Where("created_at < ?", cursorTime)
 	}
 
 	// call fetch 
 
-	users , err = r.fetch(ctx, query, limit)
+	users , err = r.fetchUser(ctx, query, limit)
 	if err != nil {
 		return nil , "",err
 	}
@@ -63,7 +80,7 @@ func (r *postgresUserRepository) Fetch(ctx context.Context, cursor string, limit
 	
 	if len(users) > limit {
 		last := users[limit-1]
-		nextCursor = repository.EncodeCursor(last.CreatedAt)
+		nextCursor = EncodeCursor(last.CreatedAt)
 		users = users[:limit]
 	}
 	return users , nextCursor , nil

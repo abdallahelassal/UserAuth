@@ -24,6 +24,11 @@ type User struct {
 }
 
 func (b *Base) BeforeCreate(tx *gorm.DB)(err error){
-	b.UUID = uuid.Must(uuid.NewV6())
+	id , err := uuid.NewV6()
+	if err != nil {
+		return err
+	}
+	b.UUID = id
+
 	return
 }

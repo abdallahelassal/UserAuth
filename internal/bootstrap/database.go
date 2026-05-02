@@ -1,22 +1,23 @@
-package database
+package bootstrap
 
 import (
 	"context"
 	"time"
 
-	"github.com/abdallahelassal/UserAuth/config"
+	
+	
 	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 type Connection struct {
-	Cfg *config.Config
+	Cfg *Config
 	DB  *gorm.DB
 	Log *zap.Logger
 }
 
-func NewConnection(cfg *config.Config, log *zap.Logger) *Connection {
+func NewConnection(cfg *Config, log *zap.Logger) *Connection {
 
 	return &Connection{
 		Cfg: cfg,

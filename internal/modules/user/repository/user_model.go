@@ -1,4 +1,4 @@
-package postgres
+package repository
 
 import (
 	"time"
@@ -34,7 +34,7 @@ func (u *UserModel) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-func (u *UserModel)	FromDomain()*domain.User{
+func (u *UserModel)	ToDomain()*domain.User{
 	return &domain.User{
 		Base: domain.Base{
 			UUID: 		u.UUID,
@@ -48,7 +48,7 @@ func (u *UserModel)	FromDomain()*domain.User{
 	}
 }
 
-func  ToDomain(u *domain.User) *UserModel{
+func  FromDomain(u *domain.User) *UserModel{
 	return &UserModel{
 		UUID: u.UUID,
 		UserName: u.UserName,
