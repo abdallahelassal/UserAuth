@@ -14,4 +14,6 @@ var (
 	ErrConfilct = errors.New("your item is already exit")
 
 	ErrBadParamInput = errors.New("givin param is not vaild")
+
+	ErrUserNotFound = errors.New("user not found")
 )

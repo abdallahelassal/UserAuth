@@ -1,18 +1,18 @@
-package route
+// package route
 
-import (
-	"time"
+// import (
+// 	"time"
 
-	"github.com/abdallahelassal/UserAuth/internal/bootstrap"
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-)
+// 	"github.com/abdallahelassal/UserAuth/internal/bootstrap"
+// 	"github.com/gin-gonic/gin"
+// 	"gorm.io/gorm"
+// )
 
 
 
-func SetupRoutes(cfg *bootstrap.Config, timeout *time.Duration, db *gorm.DB , gin *gin.Engine) {
-	puplicRouter := gin.Group("")
-	// puplic router 
+// func SetupRoutes(cfg *bootstrap.Config, timeout *time.Duration, db *gorm.DB , gin *gin.Engine) {
+// 	puplicRouter := gin.Group("")
+// 	// puplic router 
 	
 
-}
+// } 

@@ -11,6 +11,8 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
+    env_file:
+      - .env  
 
     depends_on:
       db:
@@ -52,12 +54,11 @@ services:
       db:
         condition: service_healthy
     networks:
-      - user-network
+    - user-network
     volumes:
-      - ./migrations:/migrations
-    entrypoint: ["migrate"]   
-    command: ["-path=/migrations", "-database=postgres://postgres:postgres@db:5432/userdb?sslmode=disable", "up"]      
-
+    - ./migration:/migration
+    entrypoint: migrate
+    command: -path=/migration -database "postgres://${DB_USER}:${DB_PASSWORD}@db:5432/${DB_NAME}?sslmode=disable" up
 
 
 volumes:

@@ -10,27 +10,54 @@ import (
 )
 
 
-type  postgresUserRepository struct{
+type  UserRepository struct{
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB)*postgresUserRepository{
-	return &postgresUserRepository{db: db}
+func NewUserRepository(db *gorm.DB)*UserRepository{
+	return &UserRepository{db: db}
 }
 
-func (r *postgresUserRepository) Create(ctx context.Context, user *domain.User)error{
+func (r *UserRepository) Create(ctx context.Context, user *domain.User)error{
 	model := FromDomain(user)
 	
 	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
 		return err
 	}
 	user.UUID = model.UUID
-	return nil 
+	return nil
 	
 }
 
+func (r *UserRepository) GetByEmail(ctx context.Context,email string)(*domain.User,error){
+	var model UserModel
+	err := r.db.WithContext(ctx).Where("email = ?", email).First(&model).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil, domain.ErrUserNotFound
+		}
+		return nil, err
+	}
+	user := model.ToDomain()
+	return user, nil
+}
 
-func (r *postgresUserRepository) fetchUser(ctx context.Context,query *gorm.DB ,limit int) ([]domain.User,error){
+func (r *UserRepository) GetByName(ctx context.Context, name string)(*domain.User, error){
+	var model UserModel
+	err := r.db.WithContext(ctx).Where("userName = ?", name).First(&model).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound{
+			return nil, domain.ErrUserNotFound
+		}
+		return nil,err
+	}
+	user := model.ToDomain()
+	return user,nil
+}
+
+
+
+func (r *UserRepository) fetchUser(ctx context.Context,query *gorm.DB ,limit int) ([]domain.User,error){
 	var models []UserModel
 	err := query.WithContext(ctx).
 			Limit(limit + 1).
@@ -47,7 +74,7 @@ func (r *postgresUserRepository) fetchUser(ctx context.Context,query *gorm.DB ,l
 }
 
 
-func (r *postgresUserRepository) Fetch(ctx context.Context, cursor string, limit int)([]domain.User,string,error){
+func (r *UserRepository) Fetch(ctx context.Context, cursor string, limit int)([]domain.User,string,error){
 	var users 		[]domain.User
 	var cursorTime 	time.Time
 	var err 		error

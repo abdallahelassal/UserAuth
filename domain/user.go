@@ -2,6 +2,7 @@ package domain
 
 import (
 	"time"
+	"context"
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -31,4 +32,13 @@ func (b *Base) BeforeCreate(tx *gorm.DB)(err error){
 	b.UUID = id
 
 	return
+}
+
+type UserRepository interface {
+	//Fetch(ctx context.Context,cursor string,limit int)(*[]User,error)
+	Create(ctx context.Context,user *User) error
+	GetByEmail(ctx context.Context,email string)(*User,error)
+	GetByName(ctx context.Context,name string)(*User,error)
+	//Update(ctx context.Context,uuid string) error
+	//Delete(ctx context.Context,uuid string)error
 }

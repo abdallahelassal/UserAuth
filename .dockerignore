@@ -2,3 +2,8 @@ migrations/
 Dockerfile
 .gitignore
 README.md
+.git
+node_modules
+*.log
+tmp
+.env
