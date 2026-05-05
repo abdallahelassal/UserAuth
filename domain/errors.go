@@ -16,4 +16,8 @@ var (
 	ErrBadParamInput = errors.New("givin param is not vaild")
 
 	ErrUserNotFound = errors.New("user not found")
+
+	ErrInvalidToken = errors.New("invalid token")
+
+	ErrTokenExpired = errors.New("token has expired")
 )

@@ -31,9 +31,10 @@ type ServerConfig struct {
 }
 
 type JWTConfig struct {
-	Secret            string
-	AccessExpiration   int
-	RefreshExpiration int
+	AccessTokenSecret   string
+	RefreshTokenSecret	string
+	AccessExpiration   	int
+	RefreshExpiration 	int
 }
 
 func LoadConfig() *Config {
@@ -69,9 +70,10 @@ func LoadConfig() *Config {
 			DatabaseURL: getEnv("DATABASE_URL", ""),
 		},
 		JWTConfig: JWTConfig{
-			Secret: getEnv("SECRET_KEY",""),
-			AccessExpiration: getEnvInt("JWT_ACCESS_EXPIRATION",60),
-			RefreshExpiration: getEnvInt("JWT_REFRESH_EXPIRATION", 9),
+			AccessTokenSecret: getEnv("ACCESS_TOKEN_SECRET",""),
+			RefreshTokenSecret: getEnv("REFRESH_TOKEN_SECRET",""),
+			AccessExpiration: getEnvInt("ACCESS_TOKEN_EXPIRY_HOUR",60),
+			RefreshExpiration: getEnvInt("REFRESH_TOKEN_EXPIRY_HOUR",9),
 		},
 		Enviroment: getEnv("ENVIROMENT", "DEVELOPMENT"),
 	}

@@ -2,7 +2,7 @@ include .env
 export
 
 DB_URL=postgres://$(DB_USER):$(DB_PASSWORD)@$(DB_HOST):$(DB_PORT)/$(DB_NAME)?sslmode=$(DB_SSL_MODE)
-MIGRATE=migrate -path ./migrations -database "$(DB_URL)"
+MIGRATE=migrate -path ./migration -database "$(DB_URL)"
 
 .PHONY: migrate-up migrate-down migrate-create migrate-version migrate-force db-start
 
@@ -21,7 +21,11 @@ migrate-down-all:
 
 ## Create a new migration pair (usage: make migrate-create name=add_posts)
 migrate-create:
-	migrate create -ext sql -dir ./migrations -seq $(name)
+	migrate create -ext sql -dir ./migration -seq $(name)
+
+## Create a new migration pair with "add_column" prefix (usage: make migrate-add-column name=users_email)
+migrate-add-column:
+	migrate create -ext sql -dir ./migration -seq add_column_$(name)
 
 ## Show current migration version
 migrate-version:
