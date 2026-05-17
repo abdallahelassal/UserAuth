@@ -1,0 +1,6 @@
+CREATE TABLE permissions(
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name VARCHAR(100) NOT NULL UNIQUE,
+    created_at TIMESTAMPTZ  DEFAULT NOW(),
+    updated_at  TIMESTAMPTZ DEFAULT NOW()
+);

@@ -5,8 +5,8 @@ import (
 
 	"github.com/abdallahelassal/UserAuth/internal/api/delivary"
 	"github.com/abdallahelassal/UserAuth/internal/bootstrap"
-	"github.com/abdallahelassal/UserAuth/internal/modules/user/repository"
-	"github.com/abdallahelassal/UserAuth/internal/modules/user/usecase"
+	"github.com/abdallahelassal/UserAuth/internal/repository"
+	"github.com/abdallahelassal/UserAuth/internal/usecase"
 	"go.uber.org/zap"
 	"gorm.io/gorm"
 )

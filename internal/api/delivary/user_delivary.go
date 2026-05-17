@@ -5,8 +5,8 @@ import (
 
 	"github.com/abdallahelassal/UserAuth/domain"
 	"github.com/abdallahelassal/UserAuth/internal/bootstrap"
-	"github.com/abdallahelassal/UserAuth/internal/modules/user/dtos"
-	"github.com/abdallahelassal/UserAuth/internal/modules/user/usecase"
+	"github.com/abdallahelassal/UserAuth/internal/dtos"
+	"github.com/abdallahelassal/UserAuth/internal/usecase"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
 )
