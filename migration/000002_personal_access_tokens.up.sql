@@ -10,7 +10,8 @@ CREATE TABLE personal_access_tokens(
 
     
     CONSTRAINT fk_personal_access_tokens_user
-     FOREIGN KEY (user_id)  REFERENCES users(id) ON DELETE CASCADE,
+     FOREIGN KEY (user_id)  REFERENCES users(id) ON DELETE CASCADE
     
-) ;
+);
+
 CREATE INDEX idx_pat_user_id ON personal_access_tokens(user_id);    

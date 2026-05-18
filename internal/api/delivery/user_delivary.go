@@ -1,4 +1,4 @@
-package delivary
+package delivery
 
 import (
 	"net/http"

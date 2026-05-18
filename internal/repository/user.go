@@ -24,7 +24,7 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User)error{
 	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
 		return err
 	}
-	user.UUID = model.UUID
+	user.UUID = model.ID
 	return nil
 	
 }

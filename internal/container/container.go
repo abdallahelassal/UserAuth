@@ -3,7 +3,7 @@ package container
 import (
 	"time"
 
-	"github.com/abdallahelassal/UserAuth/internal/api/delivary"
+	"github.com/abdallahelassal/UserAuth/internal/api/delivery"
 	"github.com/abdallahelassal/UserAuth/internal/bootstrap"
 	"github.com/abdallahelassal/UserAuth/internal/repository"
 	"github.com/abdallahelassal/UserAuth/internal/usecase"
@@ -13,7 +13,7 @@ import (
 
 
 type Container struct{
-	UserDelivary *delivary.UserDelivary
+	UserDelivary *delivery.UserDelivary
 	Cfg bootstrap.Config
 	Logger *zap.Logger
 }
@@ -21,7 +21,7 @@ type Container struct{
 func NewContainer(db *gorm.DB, logger *zap.Logger, cfg bootstrap.Config) *Container {
 	userRepo := repository.NewUserRepository(db)
 	userUsecase := usecase.NewUserUseCase(userRepo, 5*time.Second)
-	userDelivary := delivary.NewUserDelivary(userUsecase,cfg)
+	userDelivary := delivery.NewUserDelivary(userUsecase,cfg)
 	return &Container{
 		UserDelivary: userDelivary,
 		Cfg: cfg,

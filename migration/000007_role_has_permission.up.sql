@@ -12,4 +12,4 @@ CREATE TABLE role_has_permission(
         REFERENCES permissions(id)
         ON DELETE CASCADE
         ON UPDATE CASCADE    
-)
+);

@@ -11,13 +11,15 @@ import (
 
 
 type UserModel struct {
-	UUID		uuid.UUID	`gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
+	ID		uuid.UUID	`gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
 	UserName	string		`gorm:"not null"`
 	Email		string		`gorm:"unique;not null"`
 	Password	string		`gorm:"not null"`
 	IsActive	bool		`gorm:"default:true"`
 	CreatedAt 	time.Time 	`gorm:"autoCreateTime"`
 	UpdatedAt 	time.Time 	`gorm:"autoUpdateTime"`
+
+	Tokens 		[]PersonalAccessToken	`gorm:"foreignKey:userID"`
 }
 
 func (UserModel) TableName()string{
@@ -25,19 +27,16 @@ func (UserModel) TableName()string{
 }
 
 func (u *UserModel) BeforeCreate(tx *gorm.DB) error {
-	id , err := uuid.NewV6()
-	if err != nil {
-		return err
+	if u.ID == uuid.Nil {
+		u.ID = uuid.New()
 	}
-
-	u.UUID = id
 	return nil
 }
 
 func (u *UserModel)	ToDomain()*domain.User{
 	return &domain.User{
 		Base: domain.Base{
-			UUID: 		u.UUID,
+			UUID: 		u.ID,
 			CreatedAt: u.CreatedAt,
 			UpdatedAt: u.UpdatedAt,
 		},
@@ -48,9 +47,9 @@ func (u *UserModel)	ToDomain()*domain.User{
 	}
 }
 
-func  FromDomain(u *domain.User) *UserModel{
+func FromDomain(u *domain.User) *UserModel{
 	return &UserModel{
-		UUID: u.UUID,
+		ID: u.UUID,
 		UserName: u.UserName,
 		Email: u.Email,
 		Password: u.Password,
