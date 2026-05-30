@@ -24,13 +24,13 @@ func (r *UserRepository) Create(ctx context.Context, user *domain.User)error{
 	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
 		return err
 	}
-	user.UUID = model.ID
+	user.ID = model.ID
 	return nil
 	
 }
 
 func (r *UserRepository) GetByEmail(ctx context.Context,email string)(*domain.User,error){
-	var model UserModel
+	var model User
 	err := r.db.WithContext(ctx).Where("email = ?", email).First(&model).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -43,7 +43,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context,email string)(*domain.Us
 }
 
 func (r *UserRepository) GetByName(ctx context.Context, name string)(*domain.User, error){
-	var model UserModel
+	var model User
 	err := r.db.WithContext(ctx).Where("userName = ?", name).First(&model).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound{
@@ -58,7 +58,7 @@ func (r *UserRepository) GetByName(ctx context.Context, name string)(*domain.Use
 
 
 func (r *UserRepository) fetchUser(ctx context.Context,query *gorm.DB ,limit int) ([]domain.User,error){
-	var models []UserModel
+	var models []User
 	err := query.WithContext(ctx).
 			Limit(limit + 1).
 			Find(&models).Error

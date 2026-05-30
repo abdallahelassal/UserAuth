@@ -25,7 +25,7 @@ func (u *UserUseCase) Signup(ctx context.Context, user *domain.User) error {
 	defer cancel()
 
 	user = &domain.User{
-		UserName: user.UserName,
+		Username: user.Username,
 		Email: user.Email,
 		Password: user.Password,
 		IsActive: true,

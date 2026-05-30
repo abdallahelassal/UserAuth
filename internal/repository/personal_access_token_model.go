@@ -12,8 +12,11 @@ import (
 
 type PersonalAccessToken struct{
 	ID			uuid.UUID 	`gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
-	TokenHash	string 		`gorm:"not null"`
-	UserID		uuid.UUID	`gorm:"index;type:uuid;not null"`
+	TokenHash	string 		`gorm:"not null;uniqueIndex"`
+	UserID		uuid.UUID	`gorm:"index;type:uuid;not null;"`
+
+	User 		*User 		`gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
+
 	TokenName	string		`gorm:"not null"`
 	LastUseAt	*time.Time 	`gorm:"type:timestamptz"`
 	ExpiresAt	*time.Time	`gorm:"type:timestamptz"`
@@ -28,7 +31,7 @@ func (p *PersonalAccessToken) BeforeCreate(tx *gorm.DB) error{
 }
 
 
-func (p *PersonalAccessToken) ToDomain()*domain.PersonalAccessToken{
+func (p *PersonalAccessToken) ToDomainPersonalToken()*domain.PersonalAccessToken{
 	return &domain.PersonalAccessToken{
 		ID: p.ID,
 		TokenHash: p.TokenHash,

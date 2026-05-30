@@ -11,14 +11,14 @@ import (
 
 
 type Base struct {
-	UUID		uuid.UUID	`json:"uuid"`
+	ID		uuid.UUID	`json:"uuid"`
 	CreatedAt	time.Time	`json:"created_at"`
 	UpdatedAt	time.Time	`json:"updated_at"`
 }
 
 type User struct {
 	Base
-	UserName     string 	`json:"user_name"`
+	Username     string 	`json:"username"`
 	Email    	string 		`json:"email"`
 	Password 	string 		`json:"password"`
 	IsActive 	bool			`json:"is_active"`
@@ -29,7 +29,7 @@ func (b *Base) BeforeCreate(tx *gorm.DB)(err error){
 	if err != nil {
 		return err
 	}
-	b.UUID = id
+	b.ID = id
 
 	return
 }
