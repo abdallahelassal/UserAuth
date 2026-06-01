@@ -35,7 +35,7 @@ func (p *Permission) ToDomainPermission()*domain.Permission{
 			UpdatedAt: p.UpdatedAt,
 		},
 		Name: p.Name,
-
+		
 	}
 }
 

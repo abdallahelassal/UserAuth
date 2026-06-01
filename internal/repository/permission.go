@@ -19,7 +19,7 @@ func NewPermissionRepository(db *gorm.DB)*PermissionRepository{
 }
 
 
-func (r *PermissionRepository) FindAllPermission(ctx context.Context)([]domain.Permission,error){
+func (r *PermissionRepository) FindAllPermissions(ctx context.Context)([]domain.Permission,error){
 	var dbModels []Permission
 	if err := r.db.WithContext(ctx).Find(&dbModels).Error;err != nil {
 		return nil,err
