@@ -45,7 +45,7 @@ func (d *UserDelivary) Signup(g *gin.Context){
 	req.Password = string(encryptedPassword)
 
 	user := &domain.User{
-		UserName: req.UserName,
+		Username: req.UserName,
 		Email: req.Email,
 		Password: string(encryptedPassword),
 		IsActive: true,

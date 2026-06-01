@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/abdallahelassal/UserAuth/domain"
+	"github.com/abdallahelassal/UserAuth/pkg/bcrypt"
 )
 
 type UserUseCase struct {
@@ -23,13 +24,14 @@ func NewUserUseCase(userRepo domain.UserRepository, timeout time.Duration) *User
 func (u *UserUseCase) Signup(ctx context.Context, user *domain.User) error {
 	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
-
-	user = &domain.User{
-		Username: user.Username,
-		Email: user.Email,
-		Password: user.Password,
-		IsActive: true,
+	
+	hashPassword , err := bcrypt.HashPassword(user.Password)
+	if err != nil {
+		return err
 	}
+
+	user.Password = hashPassword
+	user.IsActive = true
 	return u.userRepo.Create(ctx, user)	
 }
 

@@ -45,7 +45,7 @@ func (r *RoleRepository) AssignPermission(ctx context.Context,roleID uuid.UUID,p
 	return r.db.WithContext(ctx).Model(&role).Association("Permissions").Replace(permissions)
 }
 
-func (r *RoleRepository) FindById(ctx context.Context,roleID uuid.UUID)(*domain.Role,error){
+func (r *RoleRepository) FindByID(ctx context.Context,roleID uuid.UUID)(*domain.Role,error){
 	var dbModel Role
 
 	if err := r.db.WithContext(ctx).Where("id = ?", roleID).Take(&dbModel).Error; errors.Is(err,gorm.ErrRecordNotFound){
