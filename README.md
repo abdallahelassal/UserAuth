@@ -21,15 +21,15 @@ A lightweight Go user authentication service with PostgreSQL persistence, Docker
 Create a `.env` file at the project root with values like:
 
 ```env
-APP_PORT=8000
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_NAME=userdb
-ACCESS_TOKEN_SECRET=your-secret
-REFRESH_TOKEN_SECRET=your-refresh-secret
-ENVIROMENT=DEVELOPMENT
+APP_PORT=
+DB_HOST=
+DB_PORT=
+DB_USER=
+DB_PASSWORD=
+DB_NAME=
+ACCESS_TOKEN_SECRET=
+REFRESH_TOKEN_SECRET=
+ENVIROMENT=
 ```
 
 > The application loads `.env` from the project root or parent directories.
