@@ -12,7 +12,7 @@ import (
 
 type User struct {
 	ID		uuid.UUID	`gorm:"primaryKey;type:uuid;default:gen_random_uuid()"`
-	Username	string		`gorm:"not null"`
+	UserName	string		`gorm:"not null"`
 	Email		string		`gorm:"unique;not null"`
 	Password	string		`gorm:"not null"`
 	IsActive	bool		`gorm:"default:true"`
@@ -42,7 +42,7 @@ func (u *User)	ToDomain()*domain.User{
 			CreatedAt: u.CreatedAt,
 			UpdatedAt: u.UpdatedAt,
 		},
-		Username: u.Username,
+		UserName: u.UserName,
 		Email: u.Email,
 		Password: u.Password,
 		IsActive: u.IsActive,
@@ -52,7 +52,7 @@ func (u *User)	ToDomain()*domain.User{
 func FromDomain(u *domain.User) *User{
 	return &User{
 		ID: u.ID,
-		Username: u.Username,
+		UserName: u.UserName,
 		Email: u.Email,
 		Password: u.Password,
 		IsActive: u.IsActive,

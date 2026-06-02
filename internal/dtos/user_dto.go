@@ -4,7 +4,12 @@ type CreateUserRequest struct {
 	UserName string `json:"user_name" binding:"required"`
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required,min=6"`
-	IsActive bool   `json:"is_active"`	
+	
+}
+
+type LoginUserRequest struct {
+	Email string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
 }
 
 type UpdateUserRequest struct {

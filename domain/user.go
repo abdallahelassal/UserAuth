@@ -18,13 +18,13 @@ type Base struct {
 
 type User struct {
 	Base
-	Username     string 	`json:"username"`
+	UserName     string 	`json:"user_name"`
 	Email    	string 		`json:"email"`
 	Password 	string 		`json:"password"`
 	IsActive 	bool			`json:"is_active"`
 }
 
-func (b *Base) BeforeCreate(tx *gorm.DB)(err error){
+func (b *Base) BeforeCreate(tx *gorm.DB) (err error){
 	id , err := uuid.NewV6()
 	if err != nil {
 		return err
@@ -39,6 +39,7 @@ type UserRepository interface {
 	Create(ctx context.Context,user *User) error
 	GetByEmail(ctx context.Context,email string)(*User,error)
 	GetByName(ctx context.Context,name string)(*User,error)
+	AssignRole(ctx context.Context,id uuid.UUID,roleID uuid.UUID)error
 	//Update(ctx context.Context,uuid string) error
 	//Delete(ctx context.Context,uuid string)error
 }

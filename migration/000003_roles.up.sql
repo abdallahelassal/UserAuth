@@ -5,3 +5,4 @@ CREATE TABLE roles(
     updated_at  TIMESTAMPTZ NOT NULL DEFAULT NOW()
 
 );
+INSERT INTO roles (name) VALUES ('user');

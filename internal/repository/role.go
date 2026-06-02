@@ -56,6 +56,17 @@ func (r *RoleRepository) FindByID(ctx context.Context,roleID uuid.UUID)(*domain.
 
 }
 
+func (r *RoleRepository) FindByName(ctx context.Context,name string)(*domain.Role,error){
+	var dbModel Role
+
+	if err := r.db.WithContext(ctx).Where("name = ?", name).Take(&dbModel).Error; errors.Is(err,gorm.ErrRecordNotFound){
+		return nil , nil
+	}
+
+	return dbModel.ToDomainRole(),nil
+
+}
+
 func (r *RoleRepository) FindAll(ctx context.Context)([]domain.Role,error){
 
 	var dbModels []Role
@@ -111,3 +122,11 @@ func (r *RoleRepository) Delete(ctx context.Context,id uuid.UUID)error{
 	}
 	return nil
 }	
+
+func (r *RoleRepository) RemoveAllPermission(ctx context.Context,roleID uuid.UUID)error{
+	var role Role
+	if err := r.db.WithContext(ctx).First(&role, "id = ?", roleID).Error; err != nil {
+		return err
+	}
+	return r.db.WithContext(ctx).Model(&role).Association("Permissions").Clear()
+}

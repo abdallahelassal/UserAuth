@@ -22,11 +22,7 @@ func main() {
 	if err := conn.Connect(); err != nil {
 		log.Fatalf("Failed to connect to database: %v", err)
 	}
-	// if err := bootstrap.RunMigrations(cfg.DatabaseConfig.DatabaseURL,"./migration",applogger); err != nil{
-		
-	// 	log.Fatalf("Failed to connect to database: %v", err)
-	
-	// }
+
 
 	r := gin.Default()
 
@@ -39,6 +35,7 @@ func main() {
 	c := container.NewContainer(conn.DB,applogger,*cfg)
 
 	r.POST("/signup", c.UserDelivary.Signup)
+	r.POST("/login",c.UserDelivary.Login)
 
 	if err := r.Run(":8000"); err != nil {
 		log.Fatalf("Failed to start server: %v", err)

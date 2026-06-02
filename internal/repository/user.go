@@ -5,7 +5,8 @@ import (
 	"time"
 
 	"github.com/abdallahelassal/UserAuth/domain"
-	
+	"github.com/google/uuid"
+
 	"gorm.io/gorm"
 )
 
@@ -44,7 +45,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context,email string)(*domain.Us
 
 func (r *UserRepository) GetByName(ctx context.Context, name string)(*domain.User, error){
 	var model User
-	err := r.db.WithContext(ctx).Where("userName = ?", name).First(&model).Error
+	err := r.db.WithContext(ctx).Where("UserName = ?", name).First(&model).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound{
 			return nil, domain.ErrUserNotFound
@@ -114,6 +115,16 @@ func (r *UserRepository) Fetch(ctx context.Context, cursor string, limit int)([]
 }
 
 
-
+func (r *UserRepository) AssignRole(ctx context.Context,id uuid.UUID,roleID uuid.UUID)error{
+	var user User
+	if err := r.db.WithContext(ctx).First(&user,"id = ?", id).Error; err != nil {
+		return err 
+	}
+	var role Role
+	if err := r.db.WithContext(ctx).First(&role, "id = ?", roleID).Error; err != nil {
+	return err
+	}
+	return r.db.WithContext(ctx).Model(&user).Association("Roles").Append(&role)
+}
 
 

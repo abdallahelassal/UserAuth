@@ -7,7 +7,7 @@ import "errors"
 
 var (
 	
-	ErrIternalServer = errors.New("internal server Error")
+	ErrInternalServer = errors.New("internal server Error")
 
 	ErrNotFound = errors.New("your request items not found")
 
