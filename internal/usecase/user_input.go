@@ -11,3 +11,9 @@ type LoginUserInput struct{
 	Email string
 	Password string
 }
+type FindByIDOutput struct{
+	Email string
+	UserName string
+	IsActive bool
+	Roles 	[]RoleOutput
+}

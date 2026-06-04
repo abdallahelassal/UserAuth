@@ -40,6 +40,8 @@ type UserRepository interface {
 	GetByEmail(ctx context.Context,email string)(*User,error)
 	GetByName(ctx context.Context,name string)(*User,error)
 	AssignRole(ctx context.Context,id uuid.UUID,roleID uuid.UUID)error
+	FindByID(ctx context.Context,userID uuid.UUID)(*User,error)
+	
 	//Update(ctx context.Context,uuid string) error
 	//Delete(ctx context.Context,uuid string)error
 }

@@ -27,3 +27,4 @@ type FetchUserResponse struct{
 	Users		[]UserResponse		`json:"users"`
 	NextCursor	string				`json:"next_cursor,omitempty"`
 }
+

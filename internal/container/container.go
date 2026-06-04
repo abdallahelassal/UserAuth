@@ -23,7 +23,7 @@ func NewContainer(db *gorm.DB, logger *zap.Logger, cfg bootstrap.Config) *Contai
 	userRepo := repository.NewUserRepository(db)
 	roleRepo := repository.NewRoleRepository(db)
 	userUsecase := usecase.NewUserUseCase(userRepo, roleRepo, 5*time.Second,cfg.JWTConfig.AccessTokenSecret, time.Duration(cfg.JWTConfig.AccessExpiration)*time.Hour)
-	userDelivery := delivery.NewUserDelivary(userUsecase,cfg)
+	userDelivery := delivery.NewUserDelivary(userUsecase)
 	return &Container{
 		UserDelivary: userDelivery,
 		Cfg: cfg,

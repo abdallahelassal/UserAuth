@@ -56,7 +56,14 @@ func (r *UserRepository) GetByName(ctx context.Context, name string)(*domain.Use
 	return user,nil
 }
 
-
+func (r *UserRepository) FindByID(ctx context.Context,userID uuid.UUID)(*domain.User, error){
+	var model User
+	if err := r.db.WithContext(ctx).Where("ID = ?" , userID).Preload("roles").First(&model).Error; err!= nil {
+		return nil , err 
+	}
+	user := model.ToDomain()
+	return  user, nil
+}
 
 func (r *UserRepository) fetchUser(ctx context.Context,query *gorm.DB ,limit int) ([]domain.User,error){
 	var models []User

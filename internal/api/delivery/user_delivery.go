@@ -4,23 +4,22 @@ import (
 	"net/http"
 
 	
-	"github.com/abdallahelassal/UserAuth/internal/bootstrap"
 	"github.com/abdallahelassal/UserAuth/internal/dtos"
 	"github.com/abdallahelassal/UserAuth/internal/usecase"
 	"github.com/gin-gonic/gin"
-	
+	"github.com/google/uuid"
 )
 
 
 type UserDelivary struct {
 	UserUseCase *usecase.UserUseCase
-	Cfg bootstrap.Config
+	
 }
 
-func NewUserDelivary(userUseCase *usecase.UserUseCase, cfg bootstrap.Config) *UserDelivary {
+func NewUserDelivary(userUseCase *usecase.UserUseCase) *UserDelivary {
 	return &UserDelivary{
 		UserUseCase: userUseCase,
-		Cfg: cfg,
+		
 	}
 }
 
@@ -71,3 +70,52 @@ func (d *UserDelivary) Login(g *gin.Context){
 	}
 	g.JSON(http.StatusOK, gin.H{"token": token})
 } 
+
+func (d *UserDelivary) Profile(g *gin.Context){
+	ctx  := g.Request.Context()
+	idParam := g.Param("id")
+	
+	userID , err := uuid.Parse(idParam)
+	if err != nil {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+	
+
+
+	user , err := d.UserUseCase.FindByID(ctx,userID)
+		if err != nil {
+		g.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to find user"})
+		return
+	}
+
+	g.JSON(http.StatusOK, gin.H{"user": user})
+
+}
+
+func (d *UserDelivary) AssignRoles(g *gin.Context){
+	ctx := g.Request.Context()
+	idParam := g.Param("id")
+	userID , err := uuid.Parse(idParam)
+	if err != nil {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	var req struct {
+		RoleID uuid.UUID `json:"role_id"`
+	}
+	if err := g.ShouldBindJSON(&req);err != nil {
+		g.JSON(http.StatusBadRequest, gin.H{"error":"invailed role_id"})
+		return
+	}
+	roleID := req.RoleID
+
+	
+	if err := d.UserUseCase.AssignRole(ctx,userID,roleID); err!= nil {
+		g.JSON(http.StatusInternalServerError, gin.H{"error":"not found roles "})
+		return
+	}
+	g.JSON(http.StatusOK, gin.H{"userRoles": "assigned successfully"})
+
+}

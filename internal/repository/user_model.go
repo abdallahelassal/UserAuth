@@ -46,6 +46,7 @@ func (u *User)	ToDomain()*domain.User{
 		Email: u.Email,
 		Password: u.Password,
 		IsActive: u.IsActive,
+	
 	}
 }
 

@@ -6,7 +6,8 @@ import (
 	"time"
 
 	"github.com/abdallahelassal/UserAuth/domain"
-	
+	"github.com/google/uuid"
+
 	"github.com/abdallahelassal/UserAuth/pkg/bcrypt"
 	"github.com/abdallahelassal/UserAuth/pkg/jwt"
 )
@@ -70,6 +71,28 @@ func (u *UserUseCase) Signup(ctx context.Context, req CreateUserInput) error {
 	return  nil 
 }
 
+func (u *UserUseCase) FindByID(ctx context.Context,userID uuid.UUID)(FindByIDOutput,error){
+	ctx , cancel := context.WithTimeout(ctx,u.contextTimeout)
+	defer cancel()
+
+	if userID == uuid.Nil{
+		return FindByIDOutput{}, errors.New("invalid user ID")
+	}
+	user , err := u.userRepo.FindByID(ctx,userID)
+	if err != nil {
+		return FindByIDOutput{},nil 
+	}
+
+	output := FindByIDOutput{
+		Email: user.Email,
+		UserName: user.UserName,
+		IsActive: user.IsActive,
+		
+	}
+	return output,nil
+	
+}
+
 func (u *UserUseCase) GetByEmail(ctx context.Context, email string)(*domain.User,error){
 	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
@@ -83,6 +106,7 @@ func (u *UserUseCase) GetByName(ctx context.Context, name string)(*domain.User,e
 
 	return u.userRepo.GetByName(ctx, name)
 }
+
 
 func (u *UserUseCase) Login(ctx context.Context , req LoginUserInput) (string,error){
 	ctx , cancel := context.WithTimeout(ctx , u.contextTimeout)
@@ -110,4 +134,13 @@ func (u *UserUseCase) Login(ctx context.Context , req LoginUserInput) (string,er
 	return "", err
 }
 	return token, nil
+}
+func (u *UserUseCase) AssignRole(ctx context.Context,userID uuid.UUID,roleID uuid.UUID)error{
+	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
+	defer cancel()
+
+	if userID == uuid.Nil || roleID == uuid.Nil {
+		return errors.New("invalid user ID or role ID")
+	}
+	return u.userRepo.AssignRole(ctx, userID, roleID)
 }
