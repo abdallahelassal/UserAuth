@@ -15,5 +15,5 @@ type Permission struct{
 type PermissionRepository interface{
 	FindAllPermissions(ctx context.Context)([]Permission,error)
 	GetPermissionsByUserID(ctx context.Context,userID uuid.UUID)([]Permission,error)
-	GerPermissionsByRolesIDs(ctx context.Context,roleID []uuid.UUID)([]Permission,error)
+	GetPermissionByRoleIDs(ctx context.Context,roleID []uuid.UUID)([]Permission,error)
 }

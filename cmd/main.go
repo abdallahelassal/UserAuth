@@ -3,11 +3,9 @@ package main
 import (
 	"log"
 
-	
 
 	"github.com/abdallahelassal/UserAuth/internal/bootstrap"
 	"github.com/abdallahelassal/UserAuth/internal/container"
-
 
 	"github.com/abdallahelassal/UserAuth/pkg/logger"
 	"github.com/gin-gonic/gin"
@@ -33,11 +31,11 @@ func main() {
 	})
 
 	c := container.NewContainer(conn.DB,applogger,*cfg)
+	c.Handler.SetupRoutes()
+	
+	
 
-	r.POST("/signup", c.UserDelivary.Signup)
-	r.POST("/login",c.UserDelivary.Login)
-
-	if err := r.Run(":8000"); err != nil {
+	if err := c.Router.Run(":8000"); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 	

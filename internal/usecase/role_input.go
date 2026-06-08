@@ -16,6 +16,9 @@ type RoleUpdateInput struct{
 	
 }
 
+type RoleDeleteInput struct{
+	ID uuid.UUID `json:"-"`
+}
 
 type RoleOutput struct {
     ID   uuid.UUID

@@ -14,7 +14,7 @@ import (
 type PermissionUsecase interface{
 	FindAllPermissions(ctx context.Context)([]GetPermissions,error)
 	GetPermissionsByUserID(ctx context.Context,userID uuid.UUID)([]GetUserPermissions,error)
-	GetPermissionByRoleIDs(ctx context.Context,roleIDs []uuid.UUID)([]GetPermissions,error)
+	GetPermissionByRoleIDs(ctx context.Context,roleIDs []uuid.UUID)([]GetPermissionsByRoleIDs,error)
 }
 
 type permissionUsecase struct{
@@ -71,14 +71,14 @@ func (p *permissionUsecase) GetPermissionsByUserID(ctx context.Context,userID uu
 	return output ,nil
 }
 
-func (p *permissionUsecase) GetPermissionByRolesIDs(ctx context.Context,rolesIDs []uuid.UUID)([]GetPermissionsByRoleIDs,error){
+func (p *permissionUsecase) GetPermissionByRoleIDs(ctx context.Context,rolesIDs []uuid.UUID)([]GetPermissionsByRoleIDs,error){
 	ctx , cancel := context.WithTimeout(ctx , p.ContextTimeOut)
 	defer cancel()
 	if len(rolesIDs) == 0 {
 		return nil , errors.New("roles id is not found")
 	}
 	
-	permissions , err := p.PremissionRepo.GerPermissionsByRolesIDs(ctx,rolesIDs)
+	permissions , err := p.PremissionRepo.GetPermissionByRoleIDs(ctx,rolesIDs)
 	if err != nil {
 		return nil , errors.New("roles not found")
 	}

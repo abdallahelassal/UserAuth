@@ -8,18 +8,18 @@ import (
 	"gorm.io/gorm"
 )
 
-type PermissionRepository struct{
+type permissionRepository struct{
 	db 	*gorm.DB
 }
 
-func NewPermissionRepository(db *gorm.DB)*PermissionRepository{
-	return &PermissionRepository{
+func NewPermissionRepository(db *gorm.DB)*permissionRepository{
+	return &permissionRepository{
 		db: db,
 	}
 }
 
 
-func (r *PermissionRepository) FindAllPermissions(ctx context.Context)([]domain.Permission,error){
+func (r *permissionRepository) FindAllPermissions(ctx context.Context)([]domain.Permission,error){
 	var dbModels []Permission
 	if err := r.db.WithContext(ctx).Find(&dbModels).Error;err != nil {
 		return nil,err
@@ -31,7 +31,7 @@ func (r *PermissionRepository) FindAllPermissions(ctx context.Context)([]domain.
 	}
 	return permissions,nil
 }
-func (r *PermissionRepository) GetPermissionsByUserID(ctx context.Context,userID uuid.UUID)([]domain.Permission,error){
+func (r *permissionRepository) GetPermissionsByUserID(ctx context.Context,userID uuid.UUID)([]domain.Permission,error){
 	var user User
 	if err := r.db.WithContext(ctx).Preload("permissions").First(&user,"id = ?", userID).Error; err != nil {
 		return nil , err
@@ -43,10 +43,10 @@ func (r *PermissionRepository) GetPermissionsByUserID(ctx context.Context,userID
 	return  permissions , nil 
 }
 
-func (r  *PermissionRepository) GetPermissionByRoleID(ctx context.Context,roleID uuid.UUID)([]domain.Permission,error){
+func (r  *permissionRepository) GetPermissionByRoleIDs(ctx context.Context,roleIDs []uuid.UUID)([]domain.Permission,error){
 	var role Role
 
-	if err := r.db.WithContext(ctx).Preload("permissions").First(&role,"id = ?", roleID).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("permissions").First(&role,"id IN ?", roleIDs).Error; err != nil {
 		return nil , err
 	}
 

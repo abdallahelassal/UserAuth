@@ -25,11 +25,11 @@ type RoleUseCase interface {
 }
 
 type roleUseCase struct{
-    RoleRepo    *repository.RoleRepository
+    RoleRepo    repository.RoleRepository
     ContextTimeout  time.Duration 
 }
 
-func NewRoleUseCase(roleRepo *repository.RoleRepository,timeOut time.Duration) RoleUseCase{
+func NewRoleUseCase(roleRepo repository.RoleRepository,timeOut time.Duration) RoleUseCase{
     return &roleUseCase{
         RoleRepo: roleRepo,
         ContextTimeout: timeOut,

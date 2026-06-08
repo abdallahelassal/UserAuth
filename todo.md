@@ -72,3 +72,27 @@ depend on those interfaces.
 - [ ] **Login error mapping** — invalid credentials / user-not-found both return `500` instead of
   `401`; `Login` also returns `http.StatusBadGateway` (502) for a bad request body.
 - [ ] **Review `PRODUCTION_REVIEW.md`** — already in the repo; likely overlaps with some of the above.
+
+## Clean Architecture review (dependency-rule violations & inconsistencies)
+
+- [ ] **`roleUseCase` depends on the concrete repository** — `usecase/role.go` imports
+  `internal/repository` and holds a `*repository.RoleRepository`, pointing an inner layer at an
+  outer one. The `domain.RoleRepository` interface already exists (and `UserUseCase` uses the
+  interface form correctly) — switch `roleUseCase` to depend on `domain.RoleRepository`.
+- [ ] **`domain` depends on GORM** — `domain/user.go` imports `gorm.io/gorm` and defines a
+  `BeforeCreate(tx *gorm.DB)` hook on the entity. The innermost layer must be framework-free;
+  remove the hook + import (it's dead code anyway — see duplicate `BeforeCreate` above).
+- [ ] **Use cases hard-coupled to concrete crypto/JWT** — `usecase/user.go` calls `bcrypt` and
+  `jwt` package functions directly. Abstract them behind ports (interfaces) so they can be
+  mocked/swapped and the use cases become unit-testable in isolation.
+- [ ] **`UserUseCase` has no interface; `RoleUseCase` does** — `RoleDelivery` depends on the
+  `usecase.RoleUseCase` interface, but `UserDelivary` depends on concrete `*usecase.UserUseCase`.
+  Pick one convention — add a `UserUseCase` interface so delivery depends on abstractions everywhere.
+- [ ] **Repos return `(nil, nil)` on not-found** — `repository/role.go` `FindByID`/`FindByName`
+  return `nil, nil`, so callers (`usecase/user.go` signup default-role branch, `usecase/role.go`
+  `FindByID`) dereference a nil pointer. Return `domain.Err*NotFound` like the user repo does.
+- [ ] **`FindByID` swallows the error** — `usecase/user.go` `FindByID` returns `nil` instead of
+  `err` on repository failure.
+- [ ] **Preload casing** — `repository/user.go` `FindByID` uses `.Preload("roles")` (lowercase)
+  but the association is `Roles`; roles also aren't mapped in `ToDomain`, so they never load.
+
