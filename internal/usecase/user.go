@@ -15,15 +15,22 @@ import (
 type UserUseCase struct {
 	userRepo domain.UserRepository
 	roleRepo domain.RoleRepository
+	permissionRepo domain.PermissionRepository
 	contextTimeout time.Duration
 	jwtSecret     string
 	jwtExpiry     time.Duration
 }
 
-func NewUserUseCase(userRepo domain.UserRepository,roleRepo domain.RoleRepository, timeout time.Duration, jwtSecret string,jwtExpiary time.Duration) *UserUseCase {
+func NewUserUseCase(userRepo domain.UserRepository,
+	roleRepo domain.RoleRepository,
+	permissionRepo domain.PermissionRepository,
+	timeout time.Duration,
+	jwtSecret string,
+	jwtExpiary time.Duration) *UserUseCase {
 	return &UserUseCase{
 		userRepo: userRepo,
 		roleRepo: roleRepo,
+		permissionRepo: permissionRepo,
 		contextTimeout: timeout,
 		jwtSecret: jwtSecret,
 		jwtExpiry: jwtExpiary,
@@ -64,6 +71,13 @@ func (u *UserUseCase) Signup(ctx context.Context, req CreateUserInput) error {
 			return err
 		}
 	}
+	if user == nil || user.ID == uuid.Nil {
+	return errors.New("invalid user")
+}
+
+if role == nil || role.ID == uuid.Nil {
+	return errors.New("invalid role")
+}
 		if err := u.userRepo.AssignRole(ctx, user.ID, role.ID); err != nil {
 		return err
 	}
@@ -143,4 +157,80 @@ func (u *UserUseCase) AssignRole(ctx context.Context,userID uuid.UUID,roleID uui
 		return errors.New("invalid user ID or role ID")
 	}
 	return u.userRepo.AssignRole(ctx, userID, roleID)
+}
+
+func (uc *UserUseCase) GetFullProfile(ctx context.Context, userID uuid.UUID) (*FullProfile, error) {
+
+	// 1. user
+	user, err := uc.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 2. roles
+	roles, err := uc.roleRepo.GetRolesByUserID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 3. permissions from roles
+	roleIDs := make([]uuid.UUID, len(roles))
+	for i, r := range roles {
+		roleIDs[i] = r.ID
+	}
+
+	rolePermissions, err := uc.permissionRepo.GetPermissionByRoleIDs(ctx, roleIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	// 4. direct permissions
+	directPermissions, _ := uc.permissionRepo.GetPermissionsByUserID(ctx, userID)
+
+	// 5. merge (simple version)
+	allPermissions := append(rolePermissions, directPermissions...)
+
+	return &FullProfile{
+		User:        ToUserOutput(*user),
+		Roles:       ToRoleOutputs(roles),
+		Permissions: ToPermissionOutputs(allPermissions),
+	}, nil
+}
+func ToUserOutput(u domain.User) UserOutput {
+    return UserOutput{
+        ID:       u.ID.String(),
+        Email:    u.Email,
+        UserName: u.UserName,
+    }
+}
+
+func ToRoleOutputs(roles []domain.Role) []RoleOutput {
+	out := make([]RoleOutput, len(roles))
+
+	for i, r := range roles {
+		out[i] = ToRoleOutput(r)
+	}
+
+	return out
+}
+func ToRoleOutput(r domain.Role) RoleOutput {
+	return RoleOutput{
+		ID:   r.Base.ID,
+		Name: r.Name,
+	}
+}
+func ToPermissionOutput(p domain.Permission) PermissionOutput {
+	return PermissionOutput{
+		ID:   p.Base.ID.String(),
+		Name: p.Name,
+	}
+}
+func ToPermissionOutputs(perms []domain.Permission) []PermissionOutput {
+	out := make([]PermissionOutput, len(perms))
+
+	for i, p := range perms {
+		out[i] = ToPermissionOutput(p)
+	}
+
+	return out
 }

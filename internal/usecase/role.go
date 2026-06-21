@@ -49,6 +49,11 @@ func (r *roleUseCase) Create(ctx context.Context,req RoleCreateInput)error{
     if err := r.RoleRepo.Create(ctx,role);err != nil {
         return err
     }
+    if len(req.PermissionIDs) > 0 {
+        if err := r.RoleRepo.AssignPermission(ctx, role.ID, req.PermissionIDs); err != nil {
+            return err
+        }
+    }
     return nil
 }
 

@@ -45,7 +45,7 @@ func (r *UserRepository) GetByEmail(ctx context.Context,email string)(*domain.Us
 
 func (r *UserRepository) GetByName(ctx context.Context, name string)(*domain.User, error){
 	var model User
-	err := r.db.WithContext(ctx).Where("UserName = ?", name).First(&model).Error
+	err := r.db.WithContext(ctx).Where("user_name = ?", name).First(&model).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound{
 			return nil, domain.ErrUserNotFound
@@ -58,7 +58,7 @@ func (r *UserRepository) GetByName(ctx context.Context, name string)(*domain.Use
 
 func (r *UserRepository) FindByID(ctx context.Context,userID uuid.UUID)(*domain.User, error){
 	var model User
-	if err := r.db.WithContext(ctx).Where("ID = ?" , userID).Preload("roles").First(&model).Error; err!= nil {
+	if err := r.db.WithContext(ctx).Where("ID = ?" , userID).Preload("Roles").First(&model).Error; err!= nil {
 		return nil , err 
 	}
 	user := model.ToDomain()
@@ -82,45 +82,51 @@ func (r *UserRepository) fetchUser(ctx context.Context,query *gorm.DB ,limit int
 }
 
 
-func (r *UserRepository) Fetch(ctx context.Context, cursor string, limit int)([]domain.User,string,error){
-	var users 		[]domain.User
-	var cursorTime 	time.Time
-	var err 		error
+func (r *UserRepository) Fetch(ctx context.Context, cursor string, limit int) ([]domain.User, string, error) {
 
-	// decode cursor 
-	if cursor != ""{
-		cursorTime , err = DecodeCursor(cursor)
+	var models []User
+	var cursorTime time.Time
+	var err error
+
+	// decode cursor
+	if cursor != "" {
+		cursorTime, err = DecodeCursor(cursor)
 		if err != nil {
-			return nil , "", domain.ErrBadParamInput
+			return nil, "", domain.ErrBadParamInput
 		}
 	}
 
 	// build query
-	query := r.db.Order("created_at DESC")
+	query := r.db.WithContext(ctx).Order("created_at DESC")
 
-	if cursor != ""{
+	if cursor != "" {
 		query = query.Where("created_at < ?", cursorTime)
 	}
 
-	// call fetch 
-
-	users , err = r.fetchUser(ctx, query, limit)
+	// fetch + 1
+	err = query.Limit(limit + 1).Find(&models).Error
 	if err != nil {
-		return nil , "",err
+		return nil, "", err
 	}
 
-	// next cursor
-	
-	var nextCursor = ""
-	
-	if len(users) > limit {
-		last := users[limit-1]
+	// next cursor logic
+	var nextCursor string
+
+	hasNext := len(models) > limit
+	if hasNext {
+		last := models[limit-1]
 		nextCursor = EncodeCursor(last.CreatedAt)
-		users = users[:limit]
+		models = models[:limit]
 	}
-	return users , nextCursor , nil
-}
 
+	// map to domain
+	users := make([]domain.User, 0, len(models))
+	for _, m := range models {
+		users = append(users, *m.ToDomain())
+	}
+
+	return users, nextCursor, nil
+}
 
 func (r *UserRepository) AssignRole(ctx context.Context,id uuid.UUID,roleID uuid.UUID)error{
 	var user User

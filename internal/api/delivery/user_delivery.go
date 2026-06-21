@@ -1,9 +1,9 @@
 package delivery
 
 import (
+	
 	"net/http"
 
-	
 	"github.com/abdallahelassal/UserAuth/internal/dtos"
 	"github.com/abdallahelassal/UserAuth/internal/usecase"
 	"github.com/gin-gonic/gin"
@@ -118,4 +118,25 @@ func (d *UserDelivary) AssignRoles(g *gin.Context){
 	}
 	g.JSON(http.StatusOK, gin.H{"userRoles": "assigned successfully"})
 
+}
+
+func (u *UserDelivary) Me(c *gin.Context) {
+	ctx := c.Request.Context()
+
+	userIDStr := c.GetString("user_id")
+
+	userID, err := uuid.Parse(userIDStr)
+	if err != nil {
+		c.JSON(400, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	result, err := u.UserUseCase.GetFullProfile(ctx, userID)
+	if err != nil {
+		
+		c.JSON(500, gin.H{"error": "failed to get profile"})
+		return
+	}
+
+	c.JSON(200, result)
 }

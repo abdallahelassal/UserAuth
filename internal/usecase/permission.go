@@ -12,9 +12,10 @@ import (
 
 
 type PermissionUsecase interface{
-	FindAllPermissions(ctx context.Context)([]GetPermissions,error)
+	FindAllPermissions(ctx context.Context)([]PermissionOutput,error)
 	GetPermissionsByUserID(ctx context.Context,userID uuid.UUID)([]GetUserPermissions,error)
 	GetPermissionByRoleIDs(ctx context.Context,roleIDs []uuid.UUID)([]GetPermissionsByRoleIDs,error)
+	Create(ctx context.Context,perm *PermissionInput)error
 }
 
 type permissionUsecase struct{
@@ -29,19 +30,19 @@ func NewPermissionUsecase(permissionRepo domain.PermissionRepository, time time.
 	}
 }
 
-func (p *permissionUsecase) FindAllPermissions(ctx context.Context)([]GetPermissions,error){
+func (p *permissionUsecase) FindAllPermissions(ctx context.Context)([]PermissionOutput,error){
 	ctx , cancel := context.WithTimeout(ctx,p.ContextTimeOut)
 	defer cancel()
 
 	permissions , err := p.PremissionRepo.FindAllPermissions(ctx)
 	if err != nil {
-		return []GetPermissions{},err
+		return []PermissionOutput{},err
 	}
 
-	output := make([]GetPermissions,len(permissions))
+	output := make([]PermissionOutput,len(permissions))
 
 	for i , v := range permissions{
-		output[i] = GetPermissions{
+		output[i] = PermissionOutput{
 			Name: v.Name,
 		}
 	}
@@ -91,4 +92,18 @@ func (p *permissionUsecase) GetPermissionByRoleIDs(ctx context.Context,rolesIDs 
 		}
 	}
 	return output,nil 
+}
+func (p *permissionUsecase) Create(ctx context.Context,perm *PermissionInput)error{
+	ctx , cancel := context.WithTimeout(ctx , p.ContextTimeOut)
+	defer cancel()
+
+	if perm.Name == "" {
+		return errors.New("permission name is required")
+	}
+
+	domainPerm := &domain.Permission{
+		Name: perm.Name,
+	}
+
+	return p.PremissionRepo.Create(ctx,domainPerm)
 }

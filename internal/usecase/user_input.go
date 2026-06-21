@@ -2,6 +2,8 @@ package usecase
 
 
 
+
+
 type CreateUserInput struct {
 	UserName string
 	Email	 string
@@ -16,4 +18,14 @@ type FindByIDOutput struct{
 	UserName string
 	IsActive bool
 	Roles 	[]RoleOutput
+}
+type UserOutput struct {
+	ID       string
+	Email    string
+	UserName string
+}
+type FullProfile struct {
+	User        UserOutput
+	Roles       []RoleOutput
+	Permissions []PermissionOutput
 }

@@ -33,7 +33,7 @@ func (r *permissionRepository) FindAllPermissions(ctx context.Context)([]domain.
 }
 func (r *permissionRepository) GetPermissionsByUserID(ctx context.Context,userID uuid.UUID)([]domain.Permission,error){
 	var user User
-	if err := r.db.WithContext(ctx).Preload("permissions").First(&user,"id = ?", userID).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("Permissions").First(&user,"id = ?", userID).Error; err != nil {
 		return nil , err
 	}
 	permissions := make([]domain.Permission,len(user.Permissions))
@@ -44,16 +44,29 @@ func (r *permissionRepository) GetPermissionsByUserID(ctx context.Context,userID
 }
 
 func (r  *permissionRepository) GetPermissionByRoleIDs(ctx context.Context,roleIDs []uuid.UUID)([]domain.Permission,error){
-	var role Role
+	var roles []Role
 
-	if err := r.db.WithContext(ctx).Preload("permissions").First(&role,"id IN ?", roleIDs).Error; err != nil {
+	if err := r.db.WithContext(ctx).Preload("Permissions").Find(&roles,"id IN ?", roleIDs).Error; err != nil {
 		return nil , err
 	}
 
-	permissions := make([]domain.Permission,len(role.Permissions))
-
-	for i , v := range role.Permissions{
-		permissions[i] = *v.ToDomainPermission()
+	seen := make(map[uuid.UUID]struct{})
+	var permissions []domain.Permission
+	for _, role := range roles {
+		for _, v := range role.Permissions {
+			if _, ok := seen[v.ID]; ok {
+				continue
+			}
+			seen[v.ID] = struct{}{}
+			permissions = append(permissions, *v.ToDomainPermission())
+		}
 	}
 	return permissions , nil
+}
+func (r *permissionRepository) Create(ctx context.Context,p *domain.Permission)error{
+	dbModel := FromDomainPermission(p)
+	if err := r.db.WithContext(ctx).Create(dbModel).Error; err != nil {
+		return err
+	}
+	return nil
 }

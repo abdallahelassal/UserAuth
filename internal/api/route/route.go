@@ -49,6 +49,7 @@ func (h *Handler) SetupRoutes(){
 	user.Use(h.authMiddleware)
 	{
 		user.GET("/:id",h.userHandler.Profile)
+		user.GET("/me", h.userHandler.Me)
 		user.PUT("/:id/roles",h.userHandler.AssignRoles)
 	}
 	roles := api.Group("/roles")
@@ -63,6 +64,7 @@ func (h *Handler) SetupRoutes(){
 	permissions := api.Group("/permissions")
 	permissions.Use(h.authMiddleware)
 	{
+		permissions.POST("/create", h.permMiddleware.Required("permissions:manage"), h.permissionHandler.Create)
 		permissions.GET("/", h.permMiddleware.Required("permissions:view"),h.permissionHandler.FindAll)
 		permissions.GET("/user/:id",h.permMiddleware.Required("permissions:view"), h.permissionHandler.FindPermissionByUserID)
 	}

@@ -4,7 +4,7 @@ import "github.com/google/uuid"
 
 
 
-type CreatePermissionInput struct{
+type PermissionInput struct{
 	Name	string
 }
 
@@ -21,6 +21,8 @@ type GetPermissionsByRoleIDs struct{
 	Name string
 	RoleID uuid.UUID
 }
-type GetPermissions struct{
+
+type PermissionOutput struct {
+	ID   string
 	Name string
 }
