@@ -17,7 +17,7 @@ type Role struct{
 	UpdatedAt 		time.Time		`gorm:"autoUpdateTime"`
 
 	Users 			[]*User			`gorm:"many2many:user_has_roles;constraint:OnDelete:CASCADE;"`
-	Permissions 	[]*Permission	`gorm:"many2many:role_has_permissions;constraint:OnDelete:CASCADE;"`
+	Permissions 	[]*Permission	`gorm:"many2many:role_has_permission;constraint:OnDelete:CASCADE;"`
 }
 
 func (r *Role) BeforeCreate(tx *gorm.DB)error{
