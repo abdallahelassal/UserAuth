@@ -14,7 +14,7 @@ type PersonalAccessToken struct{
 	TokenHash	string 		`json:"-"`
 	UserID		uuid.UUID	`json:"user_id"`
 	TokenName	string		`json:"token_name"`
-	LastUseAt	*time.Time 	`json:"last_use_at"`
+	LastUsedAt	*time.Time 	`json:"last_use_at"`
 	ExpiresAt	*time.Time	`json:"expires_at"`
 	CreatedAt  	time.Time	`json:"created_at"`
 }

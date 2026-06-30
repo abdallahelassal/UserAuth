@@ -68,7 +68,7 @@ func (p *personalAccessTokenUsecase) FindByToken(ctx context.Context, tokenHash 
 		ID: token.ID,
 		UserID: token.UserID,
 		TokenName: token.TokenName,
-		LastUseAt: token.LastUseAt,
+		LastUseAt: token.LastUsedAt,
 		ExpiresAt: token.ExpiresAt,
 		CreatedAt: token.CreatedAt,
 	} , nil

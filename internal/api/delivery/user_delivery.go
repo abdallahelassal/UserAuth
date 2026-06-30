@@ -1,11 +1,12 @@
 package delivery
 
 import (
-	
+	"log"
 	"net/http"
 
 	"github.com/abdallahelassal/UserAuth/internal/dtos"
 	"github.com/abdallahelassal/UserAuth/internal/usecase"
+	
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
@@ -65,7 +66,9 @@ func (d *UserDelivary) Login(g *gin.Context){
 	}
 	token , err :=  d.UserUseCase.Login(ctx,input)
 	if err != nil {
-		g.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+		log.Printf("login err %+v \n", err)
+		
+		g.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
 		return
 	}
 	g.JSON(http.StatusOK, gin.H{"token": token})

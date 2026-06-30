@@ -1,9 +1,15 @@
 package bootstrap
 
 import (
-	"github.com/abdallahelassal/UserAuth/domain"
-	"github.com/google/uuid"
+	"context"
+	"errors"
 	"fmt"
+
+	"github.com/abdallahelassal/UserAuth/domain"
+	"github.com/abdallahelassal/UserAuth/internal/repository"
+	"github.com/abdallahelassal/UserAuth/pkg/bcrypt"
+
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
@@ -25,6 +31,21 @@ func SeedRoles(db *gorm.DB) {
 	db.Where("name = ?", role.Name).FirstOrCreate(&role)
 }
 
+func seedRoles(repo repository.RoleRepository) {
+	roles := []string{"admin", "user"}
+	ctx := context.Background()
+	
+	for _, r := range roles {
+		_, err := repo.FindByName(ctx, r)
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			repo.Create(ctx, &domain.Role{
+				Base: domain.Base{ID: uuid.New()},
+				Name: r,
+			})
+		}
+	}
+}
+
 func SeedRolePermissions(db *gorm.DB) {
 	var admin domain.Role
 	var perm domain.Permission
@@ -44,11 +65,14 @@ func SeedUsers(db *gorm.DB) {
 
 	err := db.Where("email = ?", "admin@test.com").First(&user).Error
 
+	hashed, _ := bcrypt.HashPassword("123456")
+
 	if err != nil {
+		// create
 		user = domain.User{
 			UserName: "admin",
 			Email:    "admin@test.com",
-			Password: "123456",
+			Password: string(hashed),
 		}
 
 		if err := db.Create(&user).Error; err != nil {
@@ -56,8 +80,12 @@ func SeedUsers(db *gorm.DB) {
 		}
 
 		fmt.Println("✅ admin user created")
+
 	} else {
-		fmt.Println("⚠️ admin already exists")
+		// 🔥 update password لو موجود
+		db.Model(&user).Update("password", string(hashed))
+
+		fmt.Println("♻️ admin password updated")
 	}
 }
 func SeedUserRoles(db *gorm.DB) {

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/abdallahelassal/UserAuth/domain"
@@ -111,7 +112,177 @@ func TestByID(t *testing.T){
 	}
 }
 
+func TestFindByName(t *testing.T){
+	repo , cleanup := setupRoleRepo(t)
+	defer cleanup()
+	role := &domain.Role{
+		Base: domain.Base{ID: uuid.New()},
+		Name: "admin",
+	}
+	if err := repo.Create(context.Background(),role); err != nil {
+		t.Fatalf("failed create role %v",err)
+	}
 
+ 	a, err := repo.FindByName(context.Background(), role.Name)
+  	if err != nil {
+		t.Fatalf("failed fetch role %v", err)
+	}
+	if a.Name != role.Name{
+		t.Errorf("expected role %v got %v", role.Name , a.Name)
+	}
+}
+
+func TestFindAll(t *testing.T){
+	repo , cleanup := setupRoleRepo(t)
+	defer cleanup()
+	ctx := context.Background()
+	roles := []domain.Role{
+		{
+			Base: domain.Base{ID: uuid.New()},
+			Name: "admin",
+		},
+				{
+			Base: domain.Base{ID: uuid.New()},
+			Name: "user",
+		},
+	}
+	for i:= range roles{
+		if err := repo.Create(ctx,&roles[i]); err != nil {
+			t.Fatalf("failed create role %v", err)
+		}
+	}
+	got , err := repo.FindAll(ctx)
+	if err != nil {
+		t.Fatalf("failed fetch roles %v", err)
+	}
+	if len(got) != len(roles){
+		t.Fatalf("expected role %v got %v", len(roles),len(got))
+	}
 	
+}
 
+func TestGetRoleByUserID(t *testing.T){
+	db , cleanup := setupTestPostgresDB(t)
+	defer cleanup()
+	userRepo := NewUserRepository(db)
+	roleRepo := NewRoleRepository(db)
+	ctx := context.Background()
+	user := &domain.User{
+		Base: domain.Base{ID: uuid.New()},
+		UserName: "abdallah",
+		Email: "abdallah@test.com",
+	}
+	role := &domain.Role{
+		Base: domain.Base{ID: uuid.New()},
+		Name: "admin",
+	}
+	if err := userRepo.Create(ctx,user) ;err != nil {
+		t.Fatalf("failed create user %v", err)
+	}
+	if err := roleRepo.Create(ctx , role); err != nil {
+		t.Fatalf("failed create role %v", err)
+	}
+	if err := userRepo.AssignRole(ctx, user.ID, role.ID); err != nil {
+		t.Fatalf("failed assign role to user %v", err)
+	}
+	got , err := roleRepo.GetRolesByUserID(ctx, user.ID)
+	if err != nil {
+		t.Fatalf("failed fetch role by user %v", err)
+	}
+	if len(got) != 1 {
+		t.Fatalf("expected role %v got %v", 1, len(got))
+	}
+	if got[0].Name != role.Name{
+		t.Errorf("expected role %v got %v", role.Name, got[0].Name)
+	}
+}
+	
+func TestUpdateRole(t *testing.T){
+	repo , cleanup := setupRoleRepo(t)
+	defer cleanup()
+	ctx := context.Background()
+	role := &domain.Role{
+		Base: domain.Base{ID: uuid.New()},
+		Name: "admin",
+	}
+	if err := repo.Create(ctx,role); err != nil {
+		t.Fatalf("failed create role %v", err)
+	}
+	role.Name = "user"
+	if err := repo.Update(ctx,role); err != nil {
+		t.Fatalf("failed update role %v", err)
+	}
+	stored , err := repo.FindByID(ctx,role.ID)
+	if err != nil {
+		t.Fatalf("failed fetch role %v", err)
+	}
+	if stored.Name != role.Name{
+		t.Errorf("expected role %v got %v", stored.Name,role.Name)
+	}
+}
+func TestDeleteRole(t *testing.T){
+	repo , cleanup := setupRoleRepo(t)
+	defer cleanup()
+	ctx := context.Background()
+	role := &domain.Role{
+		Base: domain.Base{ID: uuid.New()},
+		Name: "admin",
+	}
+	if err := repo.Create(ctx,role); err != nil {
+		t.Fatalf("failed create role %v", err)
+	}
+	if err := repo.Delete(ctx,role.ID); err != nil {
+		t.Fatalf("failed delete role %v", err)
+	}
+role, err := repo.FindByID(ctx, role.ID)
 
+if !errors.Is(err, domain.ErrNotFound) {
+	t.Fatalf("expected ErrRoleNotFound, got %v", err)
+}
+
+if role != nil {
+	t.Fatalf("expected nil role after delete")
+}
+}
+
+func TestRemovePermissions(t *testing.T){
+	db , cleanup := setupTestPostgresDB(t)
+	defer cleanup()
+	roleRepo := NewRoleRepository(db)
+	permissionRepo := NewPermissionRepository(db)
+	ctx := context.Background()
+
+	role := &domain.Role{
+		Base: domain.Base{ID: uuid.New()},
+		Name: "admin",
+	}
+	permission := []domain.Permission{
+		{
+			Base: domain.Base{ID: uuid.New()},
+			Name: "read",
+		},
+		{
+			Base: domain.Base{ID: uuid.New()},
+			Name: "write",
+		},
+	}
+	if err := roleRepo.Create(ctx,role); err != nil {
+		t.Fatalf("failed create role %v", err)
+	}
+	for i := range permission{
+		if err := permissionRepo.Create(ctx,&permission[i]); err != nil {
+			t.Fatalf("failed create permission %v", err)
+		}
+	var permissionIDs []uuid.UUID
+	for _, p := range permission{
+		permissionIDs = append(permissionIDs, p.ID)
+	}
+	if err := roleRepo.AssignPermission(ctx, role.ID, permissionIDs); err != nil {
+		t.Fatalf("failed assign permissions %v", err)
+	}
+	if err := roleRepo.RemoveAllPermission(ctx, role.ID); err != nil {
+		t.Fatalf("failed remove permissions %v", err)
+	}
+		
+	}
+}

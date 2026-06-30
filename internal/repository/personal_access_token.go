@@ -23,7 +23,7 @@ func NewPersonalAccessTokenRepository(db *gorm.DB)*PersonalAccessTokenRepository
 
 func (r *PersonalAccessTokenRepository) Create(ctx context.Context, model *domain.PersonalAccessToken) error {
 	dbmodel := FromDomainPersonalAccessToken(model)
-	if err := r.db.WithContext(ctx).Create(dbmodel).Error; err != nil {
+	if err := r.db.WithContext(ctx).Create(&dbmodel).Error; err != nil {
 		return err
 	}
 	return nil
@@ -39,7 +39,7 @@ func (r *PersonalAccessTokenRepository) FindByToken(ctx context.Context,hash str
 }
 
  func (r *PersonalAccessTokenRepository) UpdateLastUseAt(ctx context.Context,hash string)error{
-	result := r.db.WithContext(ctx).Model(&PersonalAccessToken{}).Where("token_hash = ?", hash).Update("last_use_at = ?",time.Now())
+	result := r.db.WithContext(ctx).Model(&PersonalAccessToken{}).Where("token_hash = ?", hash).Update("last_used_at",time.Now())
 
 	if result.Error != nil {
 		return result.Error
@@ -50,8 +50,8 @@ func (r *PersonalAccessTokenRepository) FindByToken(ctx context.Context,hash str
 	}
 	return nil
 }
-func (r *PersonalAccessTokenRepository) Delete(ctx context.Context,hash string)error{
-	result := r.db.WithContext(ctx).Where("token_hash = ?", hash).Delete(&PersonalAccessToken{})
+func (r *PersonalAccessTokenRepository) Delete(ctx context.Context,perID uuid.UUID)error{
+	result := r.db.WithContext(ctx).Where("id = ?", perID).Delete(&PersonalAccessToken{})
 
 	if result.Error != nil {
 		return result.Error

@@ -94,7 +94,7 @@ func (u *UserUseCase) FindByID(ctx context.Context,userID uuid.UUID)(FindByIDOut
 	}
 	user , err := u.userRepo.FindByID(ctx,userID)
 	if err != nil {
-		return FindByIDOutput{},nil 
+		return FindByIDOutput{}, errors.New("user not found")
 	}
 
 	output := FindByIDOutput{
@@ -107,18 +107,37 @@ func (u *UserUseCase) FindByID(ctx context.Context,userID uuid.UUID)(FindByIDOut
 	
 }
 
-func (u *UserUseCase) GetByEmail(ctx context.Context, email string)(*domain.User,error){
+func (u *UserUseCase) GetByEmail(ctx context.Context, email string)(UserOutput,error){
 	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
-	return u.userRepo.GetByEmail(ctx, email)
+	user , err := u.userRepo.GetByEmail(ctx, email)
+	if err != nil {
+		return UserOutput{} , err 
+	}
+	output := UserOutput{
+		UserName: user.Email,
+		Email: user.Email,
+	}
+
+	return output , nil
 }
 
-func (u *UserUseCase) GetByName(ctx context.Context, name string)(*domain.User,error){
+func (u *UserUseCase) GetByName(ctx context.Context, name string)(UserOutput,error){
 	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
-	return u.userRepo.GetByName(ctx, name)
+	user , err := u.userRepo.GetByName(ctx, name)
+	if err != nil {
+		return UserOutput{},err
+	}
+	output := UserOutput{
+		UserName: user.UserName,
+		Email: user.Email,
+
+	}
+
+	return output , nil 
 }
 
 
@@ -135,9 +154,6 @@ func (u *UserUseCase) Login(ctx context.Context , req LoginUserInput) (string,er
 		return "",err
 	}
 
-
-
-
 	err = bcrypt.ComparePassword(req.Password, user.Password)
 	if err != nil {
 		return "", errors.New("invalid credentials")
@@ -149,6 +165,7 @@ func (u *UserUseCase) Login(ctx context.Context , req LoginUserInput) (string,er
 }
 	return token, nil
 }
+
 func (u *UserUseCase) AssignRole(ctx context.Context,userID uuid.UUID,roleID uuid.UUID)error{
 	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
@@ -198,7 +215,7 @@ func (uc *UserUseCase) GetFullProfile(ctx context.Context, userID uuid.UUID) (*F
 }
 func ToUserOutput(u domain.User) UserOutput {
     return UserOutput{
-        ID:       u.ID.String(),
+        
         Email:    u.Email,
         UserName: u.UserName,
     }

@@ -18,7 +18,7 @@ type PersonalAccessToken struct{
 	User 		*User 		`gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE;"`
 
 	TokenName	string		`gorm:"not null"`
-	LastUseAt	*time.Time 	`gorm:"type:timestamptz"`
+	LastUsedAt	*time.Time 	`gorm:"type:timestamptz"`
 	ExpiresAt	*time.Time	`gorm:"type:timestamptz"`
 	CreatedAt  	time.Time	`gorm:"autoCreateTime;index"`
 }
@@ -37,7 +37,7 @@ func (p *PersonalAccessToken) ToDomainPersonalToken()*domain.PersonalAccessToken
 		TokenHash: p.TokenHash,
 		UserID: p.UserID,
 		TokenName: p.TokenName,
-		LastUseAt: p.LastUseAt,
+		LastUsedAt: p.LastUsedAt,
 		ExpiresAt: p.ExpiresAt,
 		CreatedAt: p.CreatedAt,
 	}
@@ -49,7 +49,7 @@ func FromDomainPersonalAccessToken(p *domain.PersonalAccessToken)*PersonalAccess
 		TokenHash: p.TokenHash,
 		UserID: p.UserID,
 		TokenName: p.TokenName,
-		LastUseAt: p.LastUseAt,
+		LastUsedAt: p.LastUsedAt,
 		ExpiresAt: p.ExpiresAt,
 		CreatedAt: p.CreatedAt,
 	}

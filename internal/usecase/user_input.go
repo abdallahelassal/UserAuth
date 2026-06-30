@@ -20,7 +20,7 @@ type FindByIDOutput struct{
 	Roles 	[]RoleOutput
 }
 type UserOutput struct {
-	ID       string
+	
 	Email    string
 	UserName string
 }
