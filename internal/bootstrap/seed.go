@@ -82,7 +82,7 @@ func SeedUsers(db *gorm.DB) {
 		fmt.Println("✅ admin user created")
 
 	} else {
-		// 🔥 update password لو موجود
+	
 		db.Model(&user).Update("password", string(hashed))
 
 		fmt.Println("♻️ admin password updated")

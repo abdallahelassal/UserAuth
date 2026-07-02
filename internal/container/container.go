@@ -40,7 +40,7 @@ func NewContainer(db *gorm.DB, logger *zap.Logger, cfg bootstrap.Config) *Contai
 
 	//usecase
 	userUsecase 		:= usecase.NewUserUseCase(userRepo, roleRepo,permissionRepo, 5*time.Second,cfg.JWTConfig.AccessTokenSecret, time.Duration(cfg.JWTConfig.AccessExpiration)*time.Hour)
-	roleUsecase			:= usecase.NewRoleUseCase(*roleRepo, 5 * time.Second)
+	roleUsecase			:= usecase.NewRoleUseCase(roleRepo, 5 * time.Second)
 	permissionUsecase 	:= usecase.NewPermissionUsecase(permissionRepo, 5*time.Second)
 	//delivery 
 	userDelivery 		:= delivery.NewUserDelivary(userUsecase)

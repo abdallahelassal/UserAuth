@@ -7,6 +7,7 @@ import (
 
 	"github.com/abdallahelassal/UserAuth/domain"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 
 	"github.com/abdallahelassal/UserAuth/pkg/bcrypt"
 	"github.com/abdallahelassal/UserAuth/pkg/jwt"
@@ -63,14 +64,16 @@ func (u *UserUseCase) Signup(ctx context.Context, req CreateUserInput) error {
 		return err
 	}
 
-	role, err := u.roleRepo.FindByName(ctx, "user")	
-	if err != nil {
-	
-		role = &domain.Role{Name: "user"}
-		if err := u.roleRepo.Create(ctx, role); err != nil {
-			return err
-		}
-	}
+
+	role, err := u.roleRepo.FindByName(ctx, "user")
+	if errors.Is(err, gorm.ErrRecordNotFound) { // or your repo's sentinel not-found error
+    role = &domain.Role{Name: "user"}
+    if err := u.roleRepo.Create(ctx, role); err != nil {
+        return err
+    }
+} else if err != nil {
+    return err
+}
 	if user == nil || user.ID == uuid.Nil {
 	return errors.New("invalid user")
 }
@@ -116,7 +119,7 @@ func (u *UserUseCase) GetByEmail(ctx context.Context, email string)(UserOutput,e
 		return UserOutput{} , err 
 	}
 	output := UserOutput{
-		UserName: user.Email,
+		UserName: user.UserName,
 		Email: user.Email,
 	}
 

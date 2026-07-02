@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/abdallahelassal/UserAuth/domain"
-	"github.com/abdallahelassal/UserAuth/internal/repository"
+
 
 	"github.com/google/uuid"
 )
@@ -25,11 +25,11 @@ type RoleUseCase interface {
 }
 
 type roleUseCase struct{
-    RoleRepo    repository.RoleRepository
+    RoleRepo    domain.RoleRepository
     ContextTimeout  time.Duration 
 }
 
-func NewRoleUseCase(roleRepo repository.RoleRepository,timeOut time.Duration) RoleUseCase{
+func NewRoleUseCase(roleRepo domain.RoleRepository,timeOut time.Duration) RoleUseCase{
     return &roleUseCase{
         RoleRepo: roleRepo,
         ContextTimeout: timeOut,
