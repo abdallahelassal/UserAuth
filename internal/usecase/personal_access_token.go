@@ -51,20 +51,20 @@ func (p *personalAccessTokenUsecase) Create(ctx context.Context,req CreatePerson
 	return nil
 }
 
-func (p *personalAccessTokenUsecase) FindByToken(ctx context.Context, tokenHash string)(GetByTokenOutput,error){
+func (p *personalAccessTokenUsecase) FindByToken(ctx context.Context, tokenHash string)(*GetByTokenOutput,error){
 	ctx , cancel := context.WithTimeout(ctx , p.ContextTimeOut)
 	defer cancel()
 
 	if tokenHash == ""{
-		return GetByTokenOutput{}, errors.New("validate token")
+		return nil, errors.New("validate token")
 	}
 
 	token , err := p.PersonalAccessTokenRepo.FindByToken(ctx,tokenHash)
 	if err != nil {
-		return GetByTokenOutput{} , err
+		return nil , err
 	}
 
-	return GetByTokenOutput{
+	return &GetByTokenOutput{
 		ID: token.ID,
 		UserID: token.UserID,
 		TokenName: token.TokenName,
