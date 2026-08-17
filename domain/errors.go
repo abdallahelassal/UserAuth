@@ -22,4 +22,6 @@ var (
 	ErrTokenExpired = errors.New("token has expired")
 	
 	ErrRoleNameRequired = errors.New("role name is required")
+
+	ErrInvalidCredentials = errors.New("invalid credentials")
 )

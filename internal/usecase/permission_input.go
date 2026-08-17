@@ -23,6 +23,6 @@ type GetPermissionsByRoleIDs struct{
 }
 
 type PermissionOutput struct {
-	ID   string
+	ID   uuid.UUID
 	Name string
 }

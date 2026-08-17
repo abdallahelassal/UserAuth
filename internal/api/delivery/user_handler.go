@@ -1,23 +1,25 @@
 package delivery
 
 import (
-	"log"
+	"errors"
+
 	"net/http"
 
+	"github.com/abdallahelassal/UserAuth/domain"
 	"github.com/abdallahelassal/UserAuth/internal/dtos"
 	"github.com/abdallahelassal/UserAuth/internal/usecase"
-	
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 )
 
 
 type UserDelivary struct {
-	UserUseCase *usecase.UserUseCase
+	UserUseCase usecase.UserUsecase
 	
 }
 
-func NewUserDelivary(userUseCase *usecase.UserUseCase) *UserDelivary {
+func NewUserDelivary(userUseCase usecase.UserUsecase) *UserDelivary {
 	return &UserDelivary{
 		UserUseCase: userUseCase,
 		
@@ -65,9 +67,12 @@ func (d *UserDelivary) Login(g *gin.Context){
 		Password: req.Password,
 	}
 	token , err :=  d.UserUseCase.Login(ctx,input)
+	
 	if err != nil {
-		log.Printf("login err %+v \n", err)
-		
+		if errors.Is(err, domain.ErrInvalidCredentials) {
+			g.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+			return
+		}
 		g.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
 		return
 	}
@@ -126,20 +131,20 @@ func (d *UserDelivary) AssignRoles(g *gin.Context){
 func (u *UserDelivary) Me(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	userIDStr := c.GetString("user_id")
+	userIDStr := c.GetString("id")
 
 	userID, err := uuid.Parse(userIDStr)
 	if err != nil {
-		c.JSON(400, gin.H{"error": "invalid user id"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
 		return
 	}
 
 	result, err := u.UserUseCase.GetFullProfile(ctx, userID)
 	if err != nil {
 		
-		c.JSON(500, gin.H{"error": "failed to get profile"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get profile"})
 		return
 	}
 
-	c.JSON(200, result)
+	c.JSON(http.StatusOK, result)
 }

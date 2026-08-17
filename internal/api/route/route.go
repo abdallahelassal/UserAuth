@@ -49,7 +49,7 @@ func (h *Handler) SetupRoutes(){
 	user.Use(h.authMiddleware)
 	{
 		user.GET("/:id",h.userHandler.Profile)
-		user.GET("/me", h.userHandler.Me)
+		user.GET("/me/:id", h.userHandler.Me)
 		user.PUT("/:id/roles",h.userHandler.AssignRoles)
 	}
 	roles := api.Group("/roles")

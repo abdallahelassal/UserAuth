@@ -13,7 +13,7 @@ import (
 	"github.com/abdallahelassal/UserAuth/pkg/jwt"
 )
 
-type UserUseCase struct {
+type userUseCase struct {
 	userRepo domain.UserRepository
 	roleRepo domain.RoleRepository
 	permissionRepo domain.PermissionRepository
@@ -27,8 +27,8 @@ func NewUserUseCase(userRepo domain.UserRepository,
 	permissionRepo domain.PermissionRepository,
 	timeout time.Duration,
 	jwtSecret string,
-	jwtExpiary time.Duration) *UserUseCase {
-	return &UserUseCase{
+	jwtExpiary time.Duration) *userUseCase {
+	return &userUseCase{
 		userRepo: userRepo,
 		roleRepo: roleRepo,
 		permissionRepo: permissionRepo,
@@ -39,7 +39,7 @@ func NewUserUseCase(userRepo domain.UserRepository,
 }
 
 
-func (u *UserUseCase) Signup(ctx context.Context, req CreateUserInput) error {
+func (u *userUseCase) Signup(ctx context.Context, req CreateUserInput) error {
 	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
@@ -88,19 +88,19 @@ if role == nil || role.ID == uuid.Nil {
 	return  nil 
 }
 
-func (u *UserUseCase) FindByID(ctx context.Context,userID uuid.UUID)(FindByIDOutput,error){
+func (u *userUseCase) FindByID(ctx context.Context,userID uuid.UUID)(*FindByIDOutput,error){
 	ctx , cancel := context.WithTimeout(ctx,u.contextTimeout)
 	defer cancel()
 
 	if userID == uuid.Nil{
-		return FindByIDOutput{}, errors.New("invalid user ID")
+		return nil, errors.New("invalid user ID")
 	}
 	user , err := u.userRepo.FindByID(ctx,userID)
 	if err != nil {
-		return FindByIDOutput{}, errors.New("user not found")
+		return nil, errors.New("user not found")
 	}
 
-	output := FindByIDOutput{
+	output := &FindByIDOutput{
 		Email: user.Email,
 		UserName: user.UserName,
 		IsActive: user.IsActive,
@@ -110,15 +110,15 @@ func (u *UserUseCase) FindByID(ctx context.Context,userID uuid.UUID)(FindByIDOut
 	
 }
 
-func (u *UserUseCase) GetByEmail(ctx context.Context, email string)(UserOutput,error){
+func (u *userUseCase) GetByEmail(ctx context.Context, email string)(*UserOutput,error){
 	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
 	user , err := u.userRepo.GetByEmail(ctx, email)
 	if err != nil {
-		return UserOutput{} , err 
+		return nil , err 
 	}
-	output := UserOutput{
+	output := &UserOutput{
 		UserName: user.UserName,
 		Email: user.Email,
 	}
@@ -126,15 +126,15 @@ func (u *UserUseCase) GetByEmail(ctx context.Context, email string)(UserOutput,e
 	return output , nil
 }
 
-func (u *UserUseCase) GetByName(ctx context.Context, name string)(UserOutput,error){
+func (u *userUseCase) GetByName(ctx context.Context, name string)(*UserOutput,error){
 	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
 	user , err := u.userRepo.GetByName(ctx, name)
 	if err != nil {
-		return UserOutput{},err
+		return nil,err
 	}
-	output := UserOutput{
+	output := &UserOutput{
 		UserName: user.UserName,
 		Email: user.Email,
 
@@ -144,7 +144,7 @@ func (u *UserUseCase) GetByName(ctx context.Context, name string)(UserOutput,err
 }
 
 
-func (u *UserUseCase) Login(ctx context.Context , req LoginUserInput) (string,error){
+func (u *userUseCase) Login(ctx context.Context , req LoginUserInput) (string,error){
 	ctx , cancel := context.WithTimeout(ctx , u.contextTimeout)
 	defer cancel()
 
@@ -169,7 +169,7 @@ func (u *UserUseCase) Login(ctx context.Context , req LoginUserInput) (string,er
 	return token, nil
 }
 
-func (u *UserUseCase) AssignRole(ctx context.Context,userID uuid.UUID,roleID uuid.UUID)error{
+func (u *userUseCase) AssignRole(ctx context.Context,userID uuid.UUID,roleID uuid.UUID)error{
 	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
@@ -179,7 +179,7 @@ func (u *UserUseCase) AssignRole(ctx context.Context,userID uuid.UUID,roleID uui
 	return u.userRepo.AssignRole(ctx, userID, roleID)
 }
 
-func (uc *UserUseCase) GetFullProfile(ctx context.Context, userID uuid.UUID) (*FullProfile, error) {
+func (uc *userUseCase) GetFullProfile(ctx context.Context, userID uuid.UUID) (*FullProfile, error) {
 
 	// 1. user
 	user, err := uc.userRepo.FindByID(ctx, userID)
@@ -241,7 +241,7 @@ func ToRoleOutput(r domain.Role) RoleOutput {
 }
 func ToPermissionOutput(p domain.Permission) PermissionOutput {
 	return PermissionOutput{
-		ID:   p.Base.ID.String(),
+		ID:   p.Base.ID,
 		Name: p.Name,
 	}
 }

@@ -26,6 +26,8 @@ func setupTestpostgresDB(t *testing.T)(*gorm.DB, func() ){
 	return tx ,cleanup
 }
 
+
+
 func setupRepo(t *testing.T)(*UserRepository,func()){
 	db , cleanup := setupTestpostgresDB(t)
 	repo  := NewUserRepository(db)
