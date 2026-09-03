@@ -12,10 +12,10 @@ import (
 
 
 type RoleDelivery struct{
-	RoleUsecase usecase.RoleUseCase
+	RoleUsecase usecase.RoleUsecase
 }
 
-func NewRoleDelivery(roleUsecase usecase.RoleUseCase)*RoleDelivery{
+func NewRoleDelivery(roleUsecase usecase.RoleUsecase)*RoleDelivery{
 	return &RoleDelivery{
 		RoleUsecase: roleUsecase,
 	}
@@ -24,10 +24,9 @@ func NewRoleDelivery(roleUsecase usecase.RoleUseCase)*RoleDelivery{
 func (r *RoleDelivery) FindAll(g *gin.Context){
 	ctx := g.Request.Context()
 
-	
-	 roles , err := r.RoleUsecase.FindAll(ctx)
+	  roles ,err := r.RoleUsecase.FindAll(ctx)
 	if err != nil {
-		g.JSON(http.StatusBadRequest,gin.H{"error":"roles not found"})
+		g.JSON(http.StatusInternalServerError,gin.H{"error":"roles not found"})
 		return
 	}
 	g.JSON(http.StatusOK, gin.H{"roles":roles,})
@@ -46,7 +45,7 @@ func (r *RoleDelivery) FindByID(g *gin.Context){
 	
 	role , err := r.RoleUsecase.FindByID(ctx,roleID)
 	if err != nil {
-		g.JSON(http.StatusBadRequest,gin.H{"error":"role not found"})
+		g.JSON(http.StatusInternalServerError,gin.H{"error":"role not found"})
 		return
 	}
 	g.JSON(http.StatusOK,gin.H{"role":role})
@@ -60,13 +59,21 @@ func (r *RoleDelivery) Create(g *gin.Context){
 		g.JSON(http.StatusBadRequest,gin.H{"error":"request not required"})
 		return
 	}
-	
+	var permissonIDs []uuid.UUID
+	for _, id :=range req.PermissionIDs{
+		parsedID , err := uuid.Parse(id)
+		if err != nil {
+			g.JSON(http.StatusBadRequest, gin.H{"error":"invalid permission id "})
+		}
+		permissonIDs = append(permissonIDs, parsedID)
+	}
 	input := usecase.RoleCreateInput{
 		Name: req.Name,
+		PermissionIDs: permissonIDs,
 	}
 
 	if err := r.RoleUsecase.Create(ctx,input) ;err != nil {
-		g.JSON(http.StatusBadRequest,gin.H{"error":"role not created"})
+		g.JSON(http.StatusInternalServerError,gin.H{"error":"role not created"})
 		return
 	}
 	g.JSON(http.StatusOK,gin.H{"message":"role created scuccessfuly"})

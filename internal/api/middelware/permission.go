@@ -10,10 +10,10 @@ import (
 
 type PermissionMiddelWare struct {
 	PermissionUsecase usecase.PermissionUsecase
-	RoleUsecase       usecase.RoleUseCase
+	RoleUsecase       usecase.RoleUsecase
 }
 
-func NewPermissionMiddelware(pu usecase.PermissionUsecase, ru usecase.RoleUseCase) *PermissionMiddelWare {
+func NewPermissionMiddelware(pu usecase.PermissionUsecase, ru usecase.RoleUsecase) *PermissionMiddelWare {
 	return &PermissionMiddelWare{
 		PermissionUsecase: pu,
 		RoleUsecase:       ru,

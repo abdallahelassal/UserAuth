@@ -16,3 +16,11 @@ type UserUsecase interface{
 	AssignRole(ctx context.Context,userID uuid.UUID,roleID uuid.UUID)error
 	GetFullProfile(ctx context.Context,userID uuid.UUID)(*FullProfile,error)
 }
+type RoleUsecase interface {
+	Create(ctx context.Context, req RoleCreateInput)error
+	Update(ctx context.Context, req RoleUpdateInput)error
+	FindByID(ctx context.Context,roleID uuid.UUID)(*RoleOutput,error)
+	FindAll(ctx context.Context)([]*RoleOutput,error)
+	Delete(ctx context.Context, id uuid.UUID) error
+	GetRolesByUserID(ctx context.Context,userID uuid.UUID)([]*RoleOutput,error)
+}

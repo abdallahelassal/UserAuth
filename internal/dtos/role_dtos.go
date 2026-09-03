@@ -7,7 +7,7 @@ import (
 
 type RoleCreateRequest struct{
 	Name 			string		`json:"name" validate:"required,min=3,max=100"`
-	PermissionIDs 	[]uuid.UUID `json:"permission_ids" validate:"required,dive,uuid"`
+	PermissionIDs 	[]string `json:"permission_ids" validate:"required,dive,uuid"`
 }
 
 type RoleUpdateRequest struct{

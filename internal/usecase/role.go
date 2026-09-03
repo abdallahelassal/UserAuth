@@ -11,25 +11,12 @@ import (
 	"github.com/google/uuid"
 )
 
-
-type RoleUseCase interface {
-    Create(ctx context.Context, req RoleCreateInput) error
-    Update(ctx context.Context, req RoleUpdateInput) error
-
-    FindByID(ctx context.Context, id uuid.UUID) (RoleOutput, error)
-    FindAll(ctx context.Context) ([]RoleOutput, error)
-
-    GetRolesByUserID(ctx context.Context, userID uuid.UUID) ([]RoleOutput, error)
-
-    Delete(ctx context.Context, id uuid.UUID) error
-}
-
 type roleUseCase struct{
     RoleRepo    domain.RoleRepository
     ContextTimeout  time.Duration 
 }
 
-func NewRoleUseCase(roleRepo domain.RoleRepository,timeOut time.Duration) RoleUseCase{
+func NewRoleUseCase(roleRepo domain.RoleRepository,timeOut time.Duration) *roleUseCase{
     return &roleUseCase{
         RoleRepo: roleRepo,
         ContextTimeout: timeOut,
@@ -75,22 +62,22 @@ func (r *roleUseCase) Update(ctx context.Context,req RoleUpdateInput)error{
     }
     return nil
 }
-func (r *roleUseCase) FindByID(ctx context.Context, id uuid.UUID)(RoleOutput,error){
+func (r *roleUseCase) FindByID(ctx context.Context, id uuid.UUID)(*RoleOutput,error){
     ctx , cancel := context.WithTimeout(ctx, r.ContextTimeout)
     defer cancel()
 
     role, err := r.RoleRepo.FindByID(ctx, id)
     if err != nil {
-        return RoleOutput{}, err
+        return &RoleOutput{}, err
     }
-    return RoleOutput{
+    return &RoleOutput{
         ID: role.ID,
         Name: role.Name,
     }, nil
 }
 
 
-func (r *roleUseCase) FindAll(ctx context.Context)([]RoleOutput,error){
+func (r *roleUseCase) FindAll(ctx context.Context)([]*RoleOutput,error){
     ctx , cancel := context.WithTimeout(ctx, r.ContextTimeout)
     defer cancel()
 
@@ -98,9 +85,9 @@ func (r *roleUseCase) FindAll(ctx context.Context)([]RoleOutput,error){
     if err != nil {
         return nil, err
     }
-    output := make([]RoleOutput,len(roles))
+    output := make([]*RoleOutput,len(roles))
     for i , v := range roles{
-        output[i] = RoleOutput{
+        output[i] = &RoleOutput{
             ID: v.ID,
             Name: v.Name,
         }
@@ -109,7 +96,7 @@ func (r *roleUseCase) FindAll(ctx context.Context)([]RoleOutput,error){
     return output, nil
 }
 
-func (r *roleUseCase) GetRolesByUserID(ctx context.Context, userID uuid.UUID)([]RoleOutput,error){
+func (r *roleUseCase) GetRolesByUserID(ctx context.Context, userID uuid.UUID)([]*RoleOutput,error){
     ctx , cancel := context.WithTimeout(ctx, r.ContextTimeout)
     defer cancel()
 
@@ -117,9 +104,9 @@ func (r *roleUseCase) GetRolesByUserID(ctx context.Context, userID uuid.UUID)([]
     if err != nil {
         return nil, err
     }
-    output := make([]RoleOutput,len(roles)) 
+    output := make([]*RoleOutput,len(roles)) 
     for i, v := range roles {
-        output[i] =  RoleOutput{
+        output[i] =  &RoleOutput{
             ID: v.ID,
             Name: v.Name,
         }
