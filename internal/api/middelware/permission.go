@@ -22,15 +22,10 @@ func NewPermissionMiddelware(pu usecase.PermissionUsecase, ru usecase.RoleUsecas
 func (p *PermissionMiddelWare) Required(requireParam string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		ctx := c.Request.Context()
-		userID, ok := c.Get("user_id")
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "user not required"})
-			c.Abort()
-			return
-		}
-		userIDStr, ok := userID.(string)
-		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid user id type"})
+
+		userIDStr := c.GetString("user_id")
+		if userIDStr == "" {
+			c.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
 			c.Abort()
 			return
 		}
@@ -54,21 +49,27 @@ func (p *PermissionMiddelWare) Required(requireParam string) gin.HandlerFunc {
 			}
 		}
 
-		roles , err := p.RoleUsecase.GetRolesByUserID(ctx,paramID)
-		if err != nil || len(roles) == 0 {
-			c.JSON(http.StatusBadRequest,gin.H{"error": "user not authenticated"})
+		roles, err := p.RoleUsecase.GetRolesByUserID(ctx, paramID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get roles"})
 			c.Abort()
-			return 
+			return
+		}
+
+		if len(roles) == 0 {
+			c.JSON(http.StatusForbidden, gin.H{"error": "no roles assigned"})
+			c.Abort()
+			return
 		}
 		var roleIDs []uuid.UUID
-		
-			for _, r := range roles {
-				
-					roleIDs = append(roleIDs, r.ID)
-				
-			}
 
-		permissionFromRole, err := p.PermissionUsecase.GetPermissionByRoleIDs(ctx,roleIDs)
+		for _, r := range roles {
+
+			roleIDs = append(roleIDs, r.ID)
+
+		}
+
+		permissionFromRole, err := p.PermissionUsecase.GetPermissionByRoleIDs(ctx, roleIDs)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get permissions from roles"})
 			c.Abort()
@@ -81,7 +82,6 @@ func (p *PermissionMiddelWare) Required(requireParam string) gin.HandlerFunc {
 				return
 			}
 		}
-		
 
 		c.JSON(http.StatusForbidden, gin.H{"error": "permission denied"})
 		c.Abort()

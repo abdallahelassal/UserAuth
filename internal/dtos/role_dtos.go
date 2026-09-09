@@ -13,7 +13,7 @@ type RoleCreateRequest struct{
 type RoleUpdateRequest struct{
 	ID				uuid.UUID	`json:"-"`
 	Name			string		`json:"name" validate:"required,min=3,max=100"`
-	PermissionIDs 	[]uuid.UUID	`json:"permission_ids" validate:"required,dive,uuid"`
+	PermissionIDs 	[]string	`json:"permission_ids" validate:"required,dive,uuid"`
 }
 
 type RoleWithUserPermission struct{
@@ -21,4 +21,7 @@ type RoleWithUserPermission struct{
 	Name 		string			`json:"name"`
 	Users 		[]domain.User			`json:"users"`
 	Permissions []domain.Permission 	`json:"permission"`
+}
+type RoleDeleteRequest struct{
+	ID			string		`json:"id"`
 }

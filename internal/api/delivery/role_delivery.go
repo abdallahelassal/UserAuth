@@ -2,7 +2,6 @@ package delivery
 
 import (
 	"net/http"
-
 	"github.com/abdallahelassal/UserAuth/internal/dtos"
 	"github.com/abdallahelassal/UserAuth/internal/usecase"
 	"github.com/gin-gonic/gin"
@@ -22,6 +21,12 @@ func NewRoleDelivery(roleUsecase usecase.RoleUsecase)*RoleDelivery{
 }
 
 func (r *RoleDelivery) FindAll(g *gin.Context){
+
+	if g.GetString("user_id") == "" {
+		g.JSON(http.StatusUnauthorized, gin.H{"error": "user not authenticated"})
+		return
+	}
+	
 	ctx := g.Request.Context()
 
 	  roles ,err := r.RoleUsecase.FindAll(ctx)
@@ -64,6 +69,7 @@ func (r *RoleDelivery) Create(g *gin.Context){
 		parsedID , err := uuid.Parse(id)
 		if err != nil {
 			g.JSON(http.StatusBadRequest, gin.H{"error":"invalid permission id "})
+			return
 		}
 		permissonIDs = append(permissonIDs, parsedID)
 	}
@@ -80,16 +86,32 @@ func (r *RoleDelivery) Create(g *gin.Context){
 }
 
 func (r *RoleDelivery) Update(g *gin.Context){
+	var  req dtos.RoleUpdateRequest
 	ctx := g.Request.Context()
+
 	param := g.Param("id")
 	roleID , err  := uuid.Parse(param)
 	if err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{"error":" request not required"})
-		
 		return
+	}
+	if err := g.ShouldBindJSON(&req); err != nil {
+		g.JSON(http.StatusBadRequest, gin.H{"error": "invalid id"})
+		return
+	}
+	var permissionsID  []uuid.UUID
+	for _, id := range req.PermissionIDs{
+		parsedID , err := uuid.Parse(id)
+		if err != nil {
+			g.JSON(http.StatusBadRequest, gin.H{"errors": "invaled permissions id"})
+			return
+		}
+		permissionsID = append(permissionsID,parsedID)
 	}
 	id := usecase.RoleUpdateInput{
 		ID: roleID,
+		Name: req.Name,
+		PermissionIDs: permissionsID,
 	}
 	if err := r.RoleUsecase.Update(ctx,id) ; err != nil {
 			g.JSON(http.StatusInternalServerError,gin.H{"error":"role not update"})
@@ -101,6 +123,8 @@ func (r *RoleDelivery) Update(g *gin.Context){
 
 func (r *RoleDelivery) Delete(g *gin.Context){
 	ctx := g.Request.Context()
+
+
 	param := g.Param("id")
 	roleID , err  := uuid.Parse(param)
 	if err != nil {

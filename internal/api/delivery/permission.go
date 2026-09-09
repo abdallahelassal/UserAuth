@@ -1,9 +1,10 @@
 package delivery
 
 import (
-	"net/http"
-
 	
+	"net/http"
+	"strings"
+
 	"github.com/abdallahelassal/UserAuth/internal/usecase"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -46,11 +47,34 @@ func (p *PermissionDelivery) FindPermissionByUserID(g *gin.Context){
 	permission , err := p.PermissionUsecase.GetPermissionsByUserID(ctx,paramsID)
 
 	if err != nil {
-		g.JSON(http.StatusBadRequest, gin.H{"error":"permissions not found"})
+		g.JSON(http.StatusInternalServerError, gin.H{"error":"permissions not found"})
 		return 		
 	}
 	g.JSON(http.StatusOK, gin.H{"permissions":permission})
 }
+func (p *PermissionDelivery) FindPermissionByRoleID(g *gin.Context){
+	ctx := g.Request.Context()
+	idsPram := g.Query("id")
+	idsStr := strings.Split(idsPram, ",")
+	var ids []uuid.UUID
+
+	for _ , idstr := range idsStr {
+		id , err := uuid.Parse(idstr)
+		if err != nil {
+			g.JSON(http.StatusBadRequest, gin.H{"error": "invaild roles id"})
+			return
+		}
+		ids = append(ids, id)
+	}
+
+	 permissions,  err := p.PermissionUsecase.GetPermissionByRoleIDs(ctx,ids)
+	 if err != nil {
+		g.JSON(http.StatusInternalServerError, gin.H{"error":"failed get permissions by role"})
+		return
+	}
+	g.JSON(http.StatusOK, gin.H{"permissions": permissions} )
+}
+
 func (p *PermissionDelivery) Create(g *gin.Context){
 	ctx := g.Request.Context()
 

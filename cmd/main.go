@@ -3,12 +3,11 @@ package main
 import (
 	"log"
 
-
 	"github.com/abdallahelassal/UserAuth/internal/bootstrap"
+	"github.com/abdallahelassal/UserAuth/internal/bootstrap/seed"
 	"github.com/abdallahelassal/UserAuth/internal/container"
 
 	"github.com/abdallahelassal/UserAuth/pkg/logger"
-	
 )
 
 func main() {
@@ -23,11 +22,7 @@ func main() {
 
 	db := conn.DB
 
-	bootstrap.SeedPermissions(db)
-	bootstrap.SeedRoles(db)
-	bootstrap.SeedRolePermissions(db)
-	bootstrap.SeedUsers(db)
-	bootstrap.SeedUserRoles(db)
+	seed.Run(db)
 
 
 

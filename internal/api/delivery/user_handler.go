@@ -28,6 +28,7 @@ func NewUserDelivary(userUseCase usecase.UserUsecase) *UserDelivary {
 
 func (d *UserDelivary) Signup(g *gin.Context){
 	var req dtos.CreateUserRequest
+	ctx := g.Request.Context()
 
 	if err := g.ShouldBindJSON(&req); err != nil {
 		g.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request body"})
@@ -40,7 +41,6 @@ func (d *UserDelivary) Signup(g *gin.Context){
 	}
 
 
-	ctx := g.Request.Context()
 	input := usecase.CreateUserInput{
 		UserName: req.UserName,
 		Email: req.Email,

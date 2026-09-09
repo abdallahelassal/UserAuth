@@ -158,4 +158,112 @@ func TestCreate_handler(t *testing.T){
 		require.Equal(t,http.StatusOK,w.Code)
 
 	})
+	t.Run("negative_CreateRole", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		usecaseRole := mocks.NewMockRoleUsecase(ctrl)
+		handler := NewRoleDelivery(usecaseRole)
+		router := gin.New()
+		w := httptest.NewRecorder()
+		permissionID := []uuid.UUID{uuid.New(), uuid.New()}
+		expectedRole := usecase.RoleCreateInput{
+			Name: faker.Name(),
+			PermissionIDs: permissionID,
+		}
+		router.POST("/role/create", handler.Create)
+		
+		body := `{"name": "` + expectedRole.Name + `", "permission_ids": ["` + permissionID[0].String() + `", "` + permissionID[1].String() + `"]}`
+		
+		req , _ := http.NewRequest(http.MethodPost,"/role/create", bytes.NewBufferString(body))
+		usecaseRole.EXPECT().Create(gomock.Any(),NeweqRoleMatcher(expectedRole)).Return(domain.ErrInternalServer)
+		router.ServeHTTP(w,req)
+		require.Equal(t,http.StatusInternalServerError,w.Code)
+	})
 }
+
+func TestUpdate_Handler(t *testing.T){
+	gin.SetMode(gin.TestMode)
+	
+	t.Run("positive_UpdateRole", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		usecaseRole := mocks.NewMockRoleUsecase(ctrl)
+		handler := NewRoleDelivery(usecaseRole)
+		permissionsID := []uuid.UUID{uuid.New(), uuid.New()}
+		router := gin.New()
+		w := httptest.NewRecorder()
+		expectedRole := usecase.RoleUpdateInput{
+			ID: uuid.New(),
+			Name: faker.Name(),
+			PermissionIDs: permissionsID,
+		}
+		body  := `{"name": "` + expectedRole.Name+`",
+					"permission_ids": ["` + permissionsID[0].String() + `" , "`+ permissionsID[1].String()+`"]
+					}`
+		router.PUT("/role/:id", handler.Update)
+		req , _ := http.NewRequest(http.MethodPut, "/role/"+expectedRole.ID.String(),bytes.NewBufferString(body))
+		req.Header.Set("Content-Type", "application/json")
+		usecaseRole.EXPECT().Update(gomock.Any(),NeweqRoleMatcher(expectedRole)).Return(nil)
+		router.ServeHTTP(w,req)
+		require.Equal(t,http.StatusOK,w.Code)
+	})
+	t.Run("negative_UpdateRole", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		usecaseRole := mocks.NewMockRoleUsecase(ctrl)
+		handler := NewRoleDelivery(usecaseRole)
+		router := gin.New()
+		w := httptest.NewRecorder()
+		permissionsID := []uuid.UUID{uuid.New(),uuid.New()}
+		expectedRole := usecase.RoleUpdateInput{
+			ID: uuid.New(),
+			Name: faker.Name(),
+			PermissionIDs: permissionsID,
+		}
+
+		router.PUT("/role/:id", handler.Update)
+		body := `{
+			"name": "`+ expectedRole.Name +`",
+			"permission_ids": ["`+ expectedRole.PermissionIDs[0].String() +`" , "`+ expectedRole.PermissionIDs[1].String() +`"]
+		}`
+		req , _ := http.NewRequest(http.MethodPut,"/role/"+expectedRole.ID.String(),bytes.NewBufferString(body))
+		usecaseRole.EXPECT().Update(gomock.Any(),NeweqRoleMatcher(expectedRole)).Return(domain.ErrInternalServer)
+		router.ServeHTTP(w,req)
+		require.Equal(t,http.StatusInternalServerError,w.Code)
+	})
+}
+func TestDelete_Handler(t *testing.T){
+	gin.SetMode(gin.TestMode)
+	t.Run("positive_DeleteRole", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		usecaseRole := mocks.NewMockRoleUsecase(ctrl)
+		handler := NewRoleDelivery(usecaseRole)
+		router := gin.New()
+		w := httptest.NewRecorder()
+		
+		router.DELETE("/role/:id", handler.Delete)
+		expectedRole := usecase.RoleDeleteInput{
+			ID: uuid.New(),
+		}
+		req , _ := http.NewRequest(http.MethodDelete,"/role/"+expectedRole.ID.String(),nil)
+		usecaseRole.EXPECT().Delete(gomock.Any(),expectedRole.ID).Return(nil)
+		router.ServeHTTP(w,req)
+		require.Equal(t, http.StatusOK, w.Code)
+		})
+		t.Run("negative_DeleteRole", func(t *testing.T) {
+			ctrl := gomock.NewController(t)
+			defer ctrl.Finish()
+			usecaseRole := mocks.NewMockRoleUsecase(ctrl)
+			handler := NewRoleDelivery(usecaseRole)
+			router := gin.New()
+			w := httptest.NewRecorder()
+			roleID := uuid.New()
+			router.DELETE("/role/:id", handler.Delete)
+
+			req , _ := http.NewRequest(http.MethodDelete,"/role/"+ roleID.String(), nil)
+			usecaseRole.EXPECT().Delete(gomock.Any(),roleID).Return(domain.ErrInternalServer)
+			router.ServeHTTP(w,req)
+			require.Equal(t,http.StatusInternalServerError, w.Code)
+		})
+	}

@@ -24,3 +24,9 @@ type RoleUsecase interface {
 	Delete(ctx context.Context, id uuid.UUID) error
 	GetRolesByUserID(ctx context.Context,userID uuid.UUID)([]*RoleOutput,error)
 }
+type PermissionUsecase interface{
+	FindAllPermissions(ctx context.Context)([]PermissionOutput,error)
+	GetPermissionsByUserID(ctx context.Context,userID uuid.UUID)([]GetUserPermissions,error)
+	GetPermissionByRoleIDs(ctx context.Context,roleIDs []uuid.UUID)([]GetPermissionsByRoleIDs,error)
+	Create(ctx context.Context,perm *PermissionInput)error
+}

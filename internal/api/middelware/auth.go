@@ -35,7 +35,7 @@ func JwtAuthMiddleware(secret string) gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-
+		
 		userID, err := jwt.ExtractIDFromToken(token, secret)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error":"invalid token payload"})

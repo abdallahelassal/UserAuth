@@ -11,12 +11,7 @@ import (
 )
 
 
-type PermissionUsecase interface{
-	FindAllPermissions(ctx context.Context)([]PermissionOutput,error)
-	GetPermissionsByUserID(ctx context.Context,userID uuid.UUID)([]GetUserPermissions,error)
-	GetPermissionByRoleIDs(ctx context.Context,roleIDs []uuid.UUID)([]GetPermissionsByRoleIDs,error)
-	Create(ctx context.Context,perm *PermissionInput)error
-}
+
 
 type permissionUsecase struct{
 	PremissionRepo domain.PermissionRepository
