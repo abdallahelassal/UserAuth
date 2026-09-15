@@ -79,6 +79,23 @@ func TestCreatePerm_handler(t *testing.T){
 
 		require.Equal(t,http.StatusOK, w.Code)
 	})
+	t.Run("negative_create", func(t *testing.T) {
+		ctrl := gomock.NewController(t)
+		defer ctrl.Finish()
+		usecasePerm := mocks.NewMockPermissionUsecase(ctrl)
+		handler := NewPermissionDelivery(usecasePerm)
+		router := gin.New()
+		w := httptest.NewRecorder()
+
+		router.POST("/create", handler.Create)
+
+		body := `{"name": "ahmed"}`
+		req , _ := http.NewRequest(http.MethodPost, "/create", bytes.NewBufferString(body))
+		usecasePerm.EXPECT().Create(gomock.Any(),gomock.Any()).Return(domain.ErrInternalServer)
+		router.ServeHTTP(w,req)
+
+		require.Equal(t, http.StatusInternalServerError, w.Code)
+	})
 }
 func TestFindAll_handler(t *testing.T) {
 	gin.SetMode(gin.TestMode)

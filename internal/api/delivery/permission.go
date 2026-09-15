@@ -75,6 +75,7 @@ func (p *PermissionDelivery) FindPermissionByRoleID(g *gin.Context){
 	g.JSON(http.StatusOK, gin.H{"permissions": permissions} )
 }
 
+
 func (p *PermissionDelivery) Create(g *gin.Context){
 	ctx := g.Request.Context()
 

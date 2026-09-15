@@ -20,11 +20,13 @@ type userUseCase struct {
 	contextTimeout time.Duration
 	jwtSecret     string
 	jwtExpiry     time.Duration
+	EmailUsecase	EmailUsecase
 }
 
 func NewUserUseCase(userRepo domain.UserRepository,
 	roleRepo domain.RoleRepository,
 	permissionRepo domain.PermissionRepository,
+	emailUsecase EmailUsecase,
 	timeout time.Duration,
 	jwtSecret string,
 	jwtExpiary time.Duration) *userUseCase {
@@ -35,6 +37,7 @@ func NewUserUseCase(userRepo domain.UserRepository,
 		contextTimeout: timeout,
 		jwtSecret: jwtSecret,
 		jwtExpiry: jwtExpiary,
+		EmailUsecase: emailUsecase,
 	}
 }
 
@@ -43,6 +46,10 @@ func (u *userUseCase) Signup(ctx context.Context, req CreateUserInput) error {
 	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
+	result := u.EmailUsecase.Validate(ctx, req.Email)
+	if !result.Valid {
+		return domain.ErrInvalidFormat 
+	}
 
 	if req.Email == "" || req.UserName == "" || req.Password == "" {
 		return errors.New("all fields are required")
