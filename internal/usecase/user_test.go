@@ -58,7 +58,7 @@ func TestCreateUser_usecase(t *testing.T) {
 
 	
 
-	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,emailUsecase,time.Second,"secret", time.Hour)
+	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,time.Second,"secret", time.Hour)
 
 	passStr := "password"
 	
