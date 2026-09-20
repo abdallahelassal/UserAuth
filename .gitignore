@@ -31,5 +31,5 @@ go.work.sum
 # .idea/
 .vscode/
 
-.todo.md
-.PRODUCTION_REVIEW.md
+todo.md
+PRODUCTION_REVIEW.md
