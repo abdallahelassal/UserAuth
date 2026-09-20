@@ -6,15 +6,19 @@ import (
 	"time"
 
 	"github.com/abdallahelassal/UserAuth/domain"
-	"github.com/abdallahelassal/UserAuth/domain/ports"
+	"github.com/abdallahelassal/UserAuth/internal/api/validator"
 )
 
+type EmailValidator interface{
+	Check(ctx context.Context, email domain.User) (bool , error)
+	Name() string
+}
 type EmailUsecase struct{
-	Validators []ports.EmailValidator
+	Validators []validator.EmailValidator
 	Timeout time.Duration
 }
 
-func NewEmailUsecase(validators []ports.EmailValidator, timeout time.Duration)*EmailUsecase{
+func NewEmailUsecase(validators []validator.EmailValidator, timeout time.Duration)*EmailUsecase{
 	return &EmailUsecase{
 		Validators: validators,
 		Timeout: timeout,
@@ -32,7 +36,7 @@ func (e *EmailUsecase) Validate(ctx context.Context, emailStr string) domain.Val
 
 	for _, v :=range e.Validators {
 		wg.Add(1)
-		go func(validator ports.EmailValidator) {
+		go func(validator validator.EmailValidator) {
 			defer wg.Done()
 
 			ok , err := validator.Check(ctx,email)
