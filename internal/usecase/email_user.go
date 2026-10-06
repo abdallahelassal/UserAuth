@@ -9,24 +9,21 @@ import (
 	"github.com/abdallahelassal/UserAuth/internal/api/validator"
 )
 
-type EmailValidator interface{
-	Check(ctx context.Context, email domain.User) (bool , error)
-	Name() string
-}
-type EmailUsecase struct{
+
+type emailUsecase struct{
 	Validators []validator.EmailValidator
 	Timeout time.Duration
 }
 
-func NewEmailUsecase(validators []validator.EmailValidator, timeout time.Duration)*EmailUsecase{
-	return &EmailUsecase{
+func NewEmailUsecase(validators []validator.EmailValidator, timeout time.Duration)EmailUsecase{
+	return &emailUsecase{
 		Validators: validators,
 		Timeout: timeout,
 	}
 }
 
-func (e *EmailUsecase) Validate(ctx context.Context, emailStr string) domain.ValidationResult {
-	email := domain.User{Email: emailStr}
+func (e *emailUsecase) Validate(ctx context.Context, emailStr string) domain.ValidationResult {
+
 
 	ctx , cancel:= context.WithTimeout(ctx, e.Timeout)
 	defer cancel()
@@ -39,7 +36,7 @@ func (e *EmailUsecase) Validate(ctx context.Context, emailStr string) domain.Val
 		go func(validator validator.EmailValidator) {
 			defer wg.Done()
 
-			ok , err := validator.Check(ctx,email)
+			ok , err := validator.Check(ctx,emailStr)
 			results <- domain.CheckResult{Check: validator.Name(), Ok: ok, Err: err}
 		}(v)
 	}
@@ -50,7 +47,7 @@ func (e *EmailUsecase) Validate(ctx context.Context, emailStr string) domain.Val
 	return  e.aggregate(ctx , results, len(e.Validators))
 }
 
-func (e *EmailUsecase) aggregate(ctx context.Context,
+func (e *emailUsecase) aggregate(ctx context.Context,
 	result <-chan domain.CheckResult,
 	total int)domain.ValidationResult{
 		var failures []domain.ValidationError
@@ -82,12 +79,12 @@ func (e *EmailUsecase) aggregate(ctx context.Context,
 		return  ve
 	}
 
-	func (e *EmailUsecase) ValidateSequntial(ctx context.Context, emailStr string)domain.ValidationResult{
-		email := domain.User{Email: emailStr}
+	func (e *emailUsecase) ValidateSequntial(ctx context.Context, emailStr string)domain.ValidationResult{
+	
 
 		var failures []domain.ValidationError
 		for _, v := range e.Validators {
-			ok , err := v.Check(ctx, email)
+			ok , err := v.Check(ctx, emailStr)
 			if !ok {
 				failures = append(failures, *failureOf(domain.CheckResult{Check: v.Name(),Ok: ok,Err: err}))
 			}

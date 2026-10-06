@@ -12,7 +12,7 @@ type permissionRepository struct{
 	db 	*gorm.DB
 }
 
-func NewPermissionRepository(db *gorm.DB)*permissionRepository{
+func NewPermissionRepository(db *gorm.DB)domain.PermissionRepository{
 	return &permissionRepository{
 		db: db,
 	}

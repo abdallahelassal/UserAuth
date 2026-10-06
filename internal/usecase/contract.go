@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 
+	"github.com/abdallahelassal/UserAuth/domain"
 	"github.com/google/uuid"
 )
 
@@ -29,4 +30,9 @@ type PermissionUsecase interface{
 	GetPermissionsByUserID(ctx context.Context,userID uuid.UUID)([]GetUserPermissions,error)
 	GetPermissionByRoleIDs(ctx context.Context,roleIDs []uuid.UUID)([]GetPermissionsByRoleIDs,error)
 	Create(ctx context.Context,perm *PermissionInput)error
+}
+
+type EmailUsecase interface{
+	Validate(ctx context.Context,emailStr string)domain.ValidationResult
+	
 }

@@ -26,5 +26,6 @@ type RoleRepository interface{
 	Update(ctx context.Context,r *Role)error
 	Delete(ctx context.Context,id uuid.UUID)error
 	FindByName(ctx context.Context,name string)(*Role,error)
+	
 }
 

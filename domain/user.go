@@ -35,13 +35,13 @@ func (b *Base) BeforeCreate(tx *gorm.DB) (err error){
 }
 
 type UserRepository interface {
-	//Fetch(ctx context.Context,cursor string,limit int)(*[]User,error)
+	Fetch(ctx context.Context,cursor string,limit int)([]*User,string,error)
 	Create(ctx context.Context,user *User) error
 	GetByEmail(ctx context.Context,email string)(*User,error)
 	GetByName(ctx context.Context,name string)(*User,error)
 	AssignRole(ctx context.Context,id uuid.UUID,roleID uuid.UUID)error
 	FindByID(ctx context.Context,userID uuid.UUID)(*User,error)
-	
+	Transaction(ctx context.Context,fn func(ctx context.Context)error)error
 	//Update(ctx context.Context,uuid string) error
 	//Delete(ctx context.Context,uuid string)error
 }

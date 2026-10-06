@@ -1,9 +1,10 @@
 package route
 
 import (
+	"net/http"
+
 	"github.com/abdallahelassal/UserAuth/internal/api/delivery"
 	"github.com/abdallahelassal/UserAuth/internal/api/middelware"
-	
 
 	"github.com/gin-gonic/gin"
 )
@@ -43,11 +44,15 @@ func (h *Handler) SetupRoutes(){
 	{
 		auth.POST("/signup", h.userHandler.Signup)
 		auth.POST("/login", h.userHandler.Login)
+		auth.GET("/health", func(ctx *gin.Context) {
+			ctx.JSON(http.StatusOK, gin.H{"message":"hello world"})
+		})
 	}
 	
 	user := api.Group("/user")
 	user.Use(h.authMiddleware)
 	{
+		
 		user.GET("/:id",h.userHandler.Profile)
 		user.GET("/me/:id", h.userHandler.Me)
 		user.PUT("/:id/roles",h.userHandler.AssignRoles)

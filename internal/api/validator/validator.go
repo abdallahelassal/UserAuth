@@ -3,10 +3,10 @@ package validator
 import (
 	"context"
 
-	"github.com/abdallahelassal/UserAuth/domain"
+
 )
 
 type EmailValidator interface{
-	Check(ctx context.Context, email domain.User) (bool , error)
+	Check(ctx context.Context, email string) (bool , error)
 	Name() string
 }

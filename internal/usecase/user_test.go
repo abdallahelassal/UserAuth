@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/abdallahelassal/UserAuth/domain"
+	"github.com/abdallahelassal/UserAuth/internal/api/validator"
 	"github.com/abdallahelassal/UserAuth/internal/repository/mocks"
 	"github.com/abdallahelassal/UserAuth/pkg/bcrypt"
 	"github.com/go-faker/faker/v4"
@@ -55,10 +56,13 @@ func TestCreateUser_usecase(t *testing.T) {
 	userRepo 		:= mocks.NewMockUserRepository(ctrl)
 	roleRepo 		:= mocks.NewMockRoleRepository(ctrl)
 	permissionRepo 	:= mocks.NewMockPermissionRepository(ctrl)
-
+	emailValidator  := mocks.NewMockEmailValidator(ctrl)
+	emailUsecase :=  NewEmailUsecase([]validator.EmailValidator{
+		emailValidator,
+	}, time.Second)
 	
 
-	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,time.Second,"secret", time.Hour)
+	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,emailUsecase,time.Second,"secret", time.Hour)
 
 	passStr := "password"
 	
@@ -96,7 +100,13 @@ func TestFindByID_usecase(t *testing.T){
 	userRepo 		:= mocks.NewMockUserRepository(ctrl)
 	roleRepo 		:= mocks.NewMockRoleRepository(ctrl)
 	permissionRepo 	:= mocks.NewMockPermissionRepository(ctrl)
-	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,time.Second,"secret", time.Hour)
+	emailValidator  := mocks.NewMockEmailValidator(ctrl)
+	emailUsecase :=  NewEmailUsecase([]validator.EmailValidator{
+		emailValidator,
+	}, time.Second)
+	
+
+	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,emailUsecase,time.Second,"secret", time.Hour)
 	userID := uuid.New()
 
 	t.Run("positive_findByID",func(t *testing.T) {
@@ -127,7 +137,13 @@ func TestGetByEmail_usecase(t *testing.T) {
 	userRepo := mocks.NewMockUserRepository(ctrl)
 	roleRepo := mocks.NewMockRoleRepository(ctrl)
 	permissionRepo := mocks.NewMockPermissionRepository(ctrl)
-	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,time.Second,"secret", time.Hour)
+	emailValidator  := mocks.NewMockEmailValidator(ctrl)
+	emailUsecase :=  NewEmailUsecase([]validator.EmailValidator{
+		emailValidator,
+	}, time.Second)
+	
+
+	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,emailUsecase,time.Second,"secret", time.Hour)
 	userID := uuid.New()
 	ctx := context.Background()
 
@@ -163,7 +179,13 @@ func TestLoginUser_usecase(t *testing.T) {
 	userRepo := mocks.NewMockUserRepository(ctrl)
 	roleRepo := mocks.NewMockRoleRepository(ctrl)
 	permissionRepo := mocks.NewMockPermissionRepository(ctrl)
-	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,time.Second,"secret", time.Hour)
+	emailValidator  := mocks.NewMockEmailValidator(ctrl)
+	emailUsecase :=  NewEmailUsecase([]validator.EmailValidator{
+		emailValidator,
+	}, time.Second)
+	
+
+	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,emailUsecase,time.Second,"secret", time.Hour)
 	ctx := context.Background()
 	t.Run("positive_Login", func(t *testing.T) {
 		plainPass := faker.Password()
@@ -214,7 +236,13 @@ func TestAssignRole_usecase(t *testing.T) {
 	userRepo := mocks.NewMockUserRepository(ctrl)
 	roleRepo := mocks.NewMockRoleRepository(ctrl)
 	permissionRepo := mocks.NewMockPermissionRepository(ctrl)
-	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,time.Second,"secret", time.Hour)
+		emailValidator  := mocks.NewMockEmailValidator(ctrl)
+	emailUsecase :=  NewEmailUsecase([]validator.EmailValidator{
+		emailValidator,
+	}, time.Second)
+	
+
+	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,emailUsecase,time.Second,"secret", time.Hour)
 	ctx := context.Background()
 	
 	t.Run("positive_assignRole",func(t *testing.T) {
@@ -243,7 +271,13 @@ func TestFullProfile_usecase(t *testing.T) {
 	userRepo := mocks.NewMockUserRepository(ctrl)
 	roleRepo := mocks.NewMockRoleRepository(ctrl)
 	permissionRepo := mocks.NewMockPermissionRepository(ctrl)
-	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,time.Second,"secret", time.Hour)
+	emailValidator  := mocks.NewMockEmailValidator(ctrl)
+	emailUsecase :=  NewEmailUsecase([]validator.EmailValidator{
+		emailValidator,
+	}, time.Second)
+	
+
+	usecase := NewUserUseCase(userRepo,roleRepo,permissionRepo,emailUsecase,time.Second,"secret", time.Hour)
 	ctx := context.Background()
 
 	t.Run("positive_fullProfile", func(t *testing.T) {

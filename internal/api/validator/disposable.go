@@ -29,6 +29,10 @@ func NewDisposableValidator()*DisposableValidator{
 	return v
 }
 
+func (d *DisposableValidator) Name()string{
+	return "disposable"
+}
+
 func (d *DisposableValidator) AddDomain(domainName string){
 	d.mu.Lock()
 	defer d.mu.Unlock()

@@ -17,10 +17,10 @@ type userUseCase struct {
 	userRepo domain.UserRepository
 	roleRepo domain.RoleRepository
 	permissionRepo domain.PermissionRepository
+	emailUsecase	EmailUsecase
 	contextTimeout time.Duration
 	jwtSecret     string
 	jwtExpiry     time.Duration
-	EmailUsecase	EmailUsecase
 }
 
 func NewUserUseCase(userRepo domain.UserRepository,
@@ -29,31 +29,53 @@ func NewUserUseCase(userRepo domain.UserRepository,
 	emailUsecase EmailUsecase,
 	timeout time.Duration,
 	jwtSecret string,
-	jwtExpiary time.Duration) *userUseCase {
+	jwtExpiary time.Duration) UserUsecase {
 	return &userUseCase{
 		userRepo: userRepo,
 		roleRepo: roleRepo,
 		permissionRepo: permissionRepo,
+		emailUsecase: emailUsecase,
 		contextTimeout: timeout,
 		jwtSecret: jwtSecret,
 		jwtExpiry: jwtExpiary,
-		EmailUsecase: emailUsecase,
+		
 	}
 }
 
+func (u *userUseCase) CreateUserWithTx(ctx context.Context)error{
+	return u.userRepo.Transaction(ctx, func (ctx context.Context)error {
+		var req CreateUserInput
+		hashPass , err := bcrypt.HashPassword(req.Password)
+		if err != nil {
+			return err
+		}
+		user := &domain.User{
+			UserName: req.UserName,
+			Email: req.Email,
+			Password: hashPass,
+			IsActive: true,
+		}
+		if err := u.userRepo.Create(ctx, user); err != nil {
+			return err
+		}
+		
+		return nil 
+	})
+}
 
 func (u *userUseCase) Signup(ctx context.Context, req CreateUserInput) error {
 	ctx , cancel := context.WithTimeout(ctx, u.contextTimeout)
 	defer cancel()
 
-	result := u.EmailUsecase.Validate(ctx, req.Email)
-	if !result.Valid {
-		return domain.ErrInvalidFormat 
-	}
-
 	if req.Email == "" || req.UserName == "" || req.Password == "" {
 		return errors.New("all fields are required")
 	}
+	
+	result := u.emailUsecase.Validate(ctx, req.Email)
+	if !result.Valid {
+		return domain.ErrInvalidFormat 
+	}
+	
 
 	hashedPassword ,err := bcrypt.HashPassword(req.Password)
 	if err != nil {
@@ -67,6 +89,7 @@ func (u *userUseCase) Signup(ctx context.Context, req CreateUserInput) error {
 		Password: hashedPassword,
 		IsActive: true,
 	}
+
 	if err := u.userRepo.Create(ctx, user); err != nil {
 		return err
 	}

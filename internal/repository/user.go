@@ -15,19 +15,42 @@ type  UserRepository struct{
 	db *gorm.DB
 }
 
-func NewUserRepository(db *gorm.DB)*UserRepository{
+func NewUserRepository(db *gorm.DB)domain.UserRepository{
 	return &UserRepository{db: db}
 }
 
 func (r *UserRepository) Create(ctx context.Context, user *domain.User)error{
+	db := getTx(ctx, r.db)
 	model := FromDomain(user)
 	
-	if err := r.db.WithContext(ctx).Create(model).Error; err != nil {
+	if err := db.WithContext(ctx).Create(model).Error; err != nil {
 		return err
 	}
 	user.ID = model.ID
 	return nil
 	
+}
+
+func (r *UserRepository) Transaction(ctx context.Context, fn func(ctx context.Context)error)error{
+	tx := r.db.WithContext(ctx).Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+	txCtx := context.WithValue(ctx, "tx", tx)
+	err := fn(txCtx)
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	return tx.Commit().Error
+}
+
+func getTx(ctx context.Context, db *gorm.DB)*gorm.DB{
+	tx, ok := ctx.Value("tx").(*gorm.DB)
+	if ok{
+		return tx
+	}
+	return db 
 }
 
 func (r *UserRepository) GetByEmail(ctx context.Context,email string)(*domain.User,error){
@@ -82,7 +105,7 @@ func (r *UserRepository) fetchUser(ctx context.Context,query *gorm.DB ,limit int
 }
 
 
-func (r *UserRepository) Fetch(ctx context.Context, cursor string, limit int) ([]domain.User, string, error) {
+func (r *UserRepository) Fetch(ctx context.Context, cursor string, limit int) ([]*domain.User, string, error) {
 
 	var models []User
 	var cursorTime time.Time
@@ -120,9 +143,9 @@ func (r *UserRepository) Fetch(ctx context.Context, cursor string, limit int) ([
 	}
 
 	// map to domain
-	users := make([]domain.User, 0, len(models))
+	users := make([]*domain.User, 0, len(models))
 	for _, m := range models {
-		users = append(users, *m.ToDomain())
+		users = append(users, m.ToDomain())
 	}
 
 	return users, nextCursor, nil
